@@ -16,7 +16,19 @@ class AjaxHandler(webapp2.RequestHandler):
 		path_lon_lat = eval(self.request.get("path_lon_lat"))
 		self.response.out.write(path_lon_lat);
 
+class DLHandler(webapp2.RequestHandler):
+	def get(self):
+		template = jinja_environment.get_template("dl.html")
+		self.response.out.write(template.render())
+
+class LonLatFinderHandler(webapp2.RequestHandler):
+	def get(self):
+		template = jinja_environment.get_template("lon_lat_finder.html")
+		self.response.out.write(template.render())
+
 app = webapp2.WSGIApplication([
 	("/", MainHandler),
-	("/ajax", AjaxHandler)
+	("/ajax", AjaxHandler),
+	("/dl", DLHandler),
+	("/llf", LonLatFinderHandler)
 ], debug=True)

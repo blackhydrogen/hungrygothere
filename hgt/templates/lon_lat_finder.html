@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+    <meta charset="utf-8">
+    <title>Geocoding service</title>
+    <script src="http://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false"></script>
+    <script src="/scripts/kentridge.js"></script>
+    <script>
+    function d(v) {
+      document.getElementById("debug").innerHTML += v + "<br>";
+    }
+    function w(v) {
+      document.getElementById("warning").innerHTML += v + "<br>";
+    }
+    var geocoder;
+
+    function codeAddress(index, dropSecond) {
+      var address;
+      if(dropSecond == undefined) {
+        d("Working on index " + index)
+        address = kr[index].address.replace("\n", " ");
+      }
+      else {
+        address = kr[index].address.substr(0, kr[index].address.indexOf("\n"));
+      }
+      d("Using address as: " + address);
+
+      geocoder.geocode( {'address': address}, function(results, status) {
+        if (status == google.maps.GeocoderStatus.OK) {
+          w("Index " + index + ": " + results[0].geometry.location);
+
+          if(index+1 != 10) {//kr.length) {
+            codeAddress(index+1);
+          }
+        }
+        else {
+          d('Geocode was not successful for the following reason: ' + status);
+          if(dropSecond == undefined) {
+            codeAddress(index, true);
+            d("Retry with second half of address dropped")
+          }
+          else {
+            w("Index " + index + " lon-lat not found!")
+            if(index+1 != 10) {
+              codeAddress(index+1);
+            }
+          }
+        }
+      });
+    }
+
+    google.maps.event.addDomListener(window, 'load', function() { geocoder = new google.maps.Geocoder(); });
+
+    </script>
+  </head>
+  <body>
+    <div id="panel">
+      <input type="button" value="Geocode" onclick="codeAddress(0);">
+    </div>
+    <br><br>
+    <div id="debug"></div>
+    <hr>
+    <div id="warning"></div>
+  </body>
+</html>

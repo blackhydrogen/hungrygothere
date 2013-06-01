@@ -1,0 +1,1 @@
+CREATE TABLE restaurants(id INTEGER PRIMARY KEY ASC, title TEXT NOT NULL, address TEXT, contact TEXT, rating_overall INTEGER, rating_food INTEGER, rating_ambience INTEGER, rating_value INTEGER, rating_service INTEGER, review_count INTEGER, longitude REAL NOT NULL, latitude REAL NOT NULL, waitingtime_queuing INTEGER, waitingtime_serving INTEGER, url TEXT);

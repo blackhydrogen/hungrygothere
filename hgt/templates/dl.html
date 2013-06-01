@@ -1,0 +1,243 @@
+<script src="http://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false"></script>
+<script src="/scripts/kentridge.js"></script>
+
+<script>
+if(urlList == undefined) {
+	urlList = [];
+}
+var restCalls = 0;
+var restCounts = 0;
+var geocoder;
+var searchBounds = new google.maps.LatLngBounds(new google.maps.LatLng(1.22, 103.6, false), new google.maps.LatLng(1.472, 104.04, false));
+
+function partial(fn) {
+  // A reference to the Array#slice method.
+  var slice = Array.prototype.slice;
+  // Convert arguments object to an array, removing the first argument.
+  var args = slice.call(arguments, 1);
+
+  return function() {
+    // Invoke the originally-specified function, passing in all originally-
+    // specified arguments, followed by any just-specified arguments.
+    return fn.apply(this, args.concat(slice.call(arguments, 0)));
+};
+}
+
+function $(v) {
+	return document.getElementById(v);
+}
+function go() {
+	eval($("txt").value);
+}
+function d(v) {
+	if(v != urlList) {
+		$("txt").value = $("txt").value + "\n//" + v;
+	}
+	else {
+		$("txt").value = $("txt").value + "\n//" + JSON.stringify(urlList);
+	}
+	$("txt").scrollTop = $("txt").scrollHeight;
+}
+function w(v) {
+	d("WARNING - " + v);
+}
+function filterWarnings() {
+	var text = $("txt").value.split("\n");
+	var newText = "";
+	for(var i = 0; i < text.length; i++) {
+		if(text[i].substr(0,2) != "//" || text[i].substr(0,9) == "//WARNING") {
+			newText += text[i] + "\n";
+		}
+	}
+	$("txt").value = newText;
+}
+
+function parseSearch(startURL, pageNo) {
+	var list = $("fr").contentDocument.getElementsByTagName("article");
+
+	if(list.length != 20) {
+		d("INFO - <article> elements not 20. Proceeding to fill urlList.")
+		fillURLlist();
+		return;
+	}
+
+	d("Parsing page...")
+
+	for(var i = 0; i < list.length; i++) {
+		var url;
+		if(list[i].children.length == 3)
+			url = list[i].children[1].children[1].children[0].href;
+		else
+			url = list[i].children[0].children[1].children[0].href;
+
+		url = url.split("?")[0];
+		if(url != "http://www.hungrygowhere.com/singapore//")
+			urlList.push({url: url});
+	}
+
+	//fillURLlist();
+	loadResults(startURL, pageNo + 1);
+}
+
+function loadResults(startURL, pageNo) {
+	if(pageNo == undefined) {
+		pageNo = 1;
+	}
+
+	loadURL(startURL.replace("xxxxx", pageNo), partial(parseSearch, startURL, pageNo));
+}
+
+function loadURL(url, funcToCall, firstTime) { //firstTime is a bit of a misnomer, but if it's underfined then it's the first time this function is called (hence load the page; i.e. the page isn't currently being loaded), true otherwise
+	if(firstTime == undefined) {
+		if(rest()) {
+			d("Resting...")
+			setTimeout(partial(loadURL, url, funcToCall, firstTime), 10000);
+			return;
+		}
+		d("Loading page " + url)
+		$("fr").src = url;
+		setTimeout(partial(loadURL, url, funcToCall, true), 1000);
+		return;
+	}
+
+	if($("fr").contentDocument.URL != url || $("fr").contentDocument.readyState != "complete") {
+		d("Page not loaded. Stalling 1 secs.")
+		setTimeout(partial(loadURL, url, funcToCall, true), 1000);
+		return;
+	}
+
+	d("Page loaded. ")
+	if(funcToCall != undefined)
+		funcToCall();
+}
+
+function fillURLlist(currIndex, pageSelect) {
+	if(currIndex == undefined) {
+		loadURL(urlList[0].url, partial(fillURLlist, 0, 1));
+		return;
+	}
+
+	currObj = urlList[currIndex];
+	if(pageSelect == 1) { //main page
+		d("Processing urlList[" + currIndex + "], mainpage")
+		
+		var DOMchain = $("fr").contentDocument.getElementsByClassName("red-title")[0];
+
+		currObj.title = DOMchain.children[0].innerHTML.replace(/^\s+|\s+$/g, "");
+		currObj.address = DOMchain.parentNode.children[1].children[0].innerHTML + "\n" + DOMchain.parentNode.children[1].children[1].innerHTML;
+		currObj.contact = DOMchain.parentNode.children[1].children[2].innerHTML.replace(/<(.|\n)*?>/g, " ").replace("\n\t\t\t\t\t\t\t\t\t\t\t", "").replace(/^\s+|\s+$/g, "").replace(/\s{2,}/g, ' ');
+		currObj.otherInfo = $("fr").contentDocument.getElementsByClassName("left-infos")[0].innerHTML;
+
+		loadURL(urlList[currIndex].url + "review/", partial(fillURLlist, currIndex, 2));
+	}
+	else { //pageSelect = 2... review page
+		d("Processing urlList[" + currIndex + "], review page")
+
+		var DOMchain = $("fr").contentDocument.getElementById("content").children[0].children[0].children[2].children[1].children[1].children[0];
+		if(DOMchain.children[0].tagName == "A") {
+			DOMchain = $("fr").contentDocument.getElementById("content").children[0].children[0].children[2].children[1].children[2].children[0].children[1].children[1].children[0];
+		}
+		else {
+			DOMchain = DOMchain.children[1].children[1].children[0];
+		}
+
+		currObj.overallRating  = parseFloat(DOMchain.children[0].children[1].children[0].children[0].className.split(/\s+/)[1].substr(1).replace("_", "."));
+		currObj.foodRating     = parseFloat(DOMchain.children[1].children[1].children[0].children[0].className.split(/\s+/)[1].substr(1).replace("_", "."));
+		currObj.ambienceRating = parseFloat(DOMchain.children[2].children[1].children[0].children[0].className.split(/\s+/)[1].substr(1).replace("_", "."));
+		currObj.valueRating    = parseFloat(DOMchain.children[3].children[1].children[0].children[0].className.split(/\s+/)[1].substr(1).replace("_", "."));
+		currObj.serviceRating  = parseFloat(DOMchain.children[4].children[1].children[0].children[0].className.split(/\s+/)[1].substr(1).replace("_", "."));
+		if(currObj.overallRating  == NaN) currObj.overallRating = -1.0;
+		if(currObj.foodRating     == NaN) currObj.foodRating = -1.0;
+		if(currObj.ambienceRating == NaN) currObj.ambienceRating = -1.0;
+		if(currObj.valueRating    == NaN) currObj.valueRating = -1.0;
+		if(currObj.serviceRating  == NaN) currObj.serviceRating = -1.0;
+
+		currObj.reviewCount    = parseInt(DOMchain.parentNode.parentNode.children[2].children[0].innerHTML.split(" ")[2]);
+		if(currObj.reviewCount == NaN) currObj.reviewCount = -1;
+
+		if(currIndex+1 != urlList.length)
+			loadURL(urlList[currIndex+1].url, partial(fillURLlist, currIndex+1, 1));
+		else {
+			d("urlList filled.")
+			d("Rest counts/calls: " + restCounts + "/" + restCalls + " = " + restCounts/restCalls)
+			d(urlList)
+		}
+	}
+	urlList[currIndex] = currObj;
+}
+
+function rest() {
+	restCalls++;
+	if(Math.random() < 0.2) {
+		restCounts++;
+		return true;
+	}
+	return false;
+}
+
+
+
+function findLonLat(index, dropSecond) {
+	if(rest()) {
+		d("Resting...")
+		setTimeout(partial(findLonLat, index, dropSecond), 3000);
+		return;
+	}
+	var address;
+
+	if(dropSecond == undefined) {
+		d("Working on index " + index)
+		address = urlList[index].address.replace("\n", " ");
+	}
+	else {
+		address = urlList[index].address.substr(0, urlList[index].address.indexOf("\n"));
+	}
+	d("Using address as: " + address);
+
+	geocoder.geocode({'address': address, 'bounds': searchBounds},
+		function(results, status) {
+			if (status == google.maps.GeocoderStatus.OK) {
+				w("Index " + index + ": " + results[0].geometry.location);
+				urlList[index].longitude = results[0].geometry.location.lng();
+				urlList[index].latitude = results[0].geometry.location.lat();
+			}
+			else {
+				d('Geocode was not successful for the following reason: ' + status);
+				if(status == "OVER_QUERY_LIMIT") {
+					d("Forced rest...")
+					setTimeout(partial(findLonLat, index, dropSecond), 10000);
+					return;
+				}
+
+				if(dropSecond == undefined) {
+					d("Retry with second half of address dropped")
+					findLonLat(index, true);
+					return;
+				}
+				else {
+					w("Index " + index + " lon-lat not found!")
+				}
+			}
+
+			if(index+1 != urlList.length) {
+				findLonLat(index+1);
+			}
+			else {
+				d("findLonLat finished.");
+				d("Rest counts/calls: " + restCounts + "/" + restCalls + " = " + restCounts/restCalls);
+			}
+		}
+	);
+}
+
+google.maps.event.addDomListener(window, 'load', function() { geocoder = new google.maps.Geocoder(); });
+</script>
+
+<textarea style="width:100%; height: 90%" id="txt">
+//loadResults("http://www.hungrygowhere.com/search-results/?page=xxxxx&neighbourhood=Kent+Ridge");
+findLonLat(0);
+</textarea><br>
+<input type="button" value="Go" onclick="go();" style="width: 79%">
+<input type="button" value="Filter Warnings" onclick="filterWarnings();" style="width: 20%">
+<br>
+<iframe src="" style="width:100%; height: 100%" id="fr"></iframe>
