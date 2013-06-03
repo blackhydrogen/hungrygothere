@@ -146,35 +146,18 @@ function fillURLlist(currIndex, pageSelect) {
 		currObj.ambienceRating = parseFloat(DOMchain.children[2].children[1].children[0].children[0].className.split(/\s+/)[1].substr(1).replace("_", "."));
 		currObj.valueRating    = parseFloat(DOMchain.children[3].children[1].children[0].children[0].className.split(/\s+/)[1].substr(1).replace("_", "."));
 		currObj.serviceRating  = parseFloat(DOMchain.children[4].children[1].children[0].children[0].className.split(/\s+/)[1].substr(1).replace("_", "."));
-		//if(currObj.overallRating  == NaN) currObj.overallRating = -1.0;
-		//if(currObj.foodRating     == NaN) currObj.foodRating = -1.0;
-		//if(currObj.ambienceRating == NaN) currObj.ambienceRating = -1.0;
-		//if(currObj.valueRating    == NaN) currObj.valueRating = -1.0;
-		//if(currObj.serviceRating  == NaN) currObj.serviceRating = -1.0;
 
 		currObj.reviewCount    = parseInt(DOMchain.parentNode.parentNode.children[2].getElementsByTagName("small")[0].innerHTML.split(" ")[2]);
-		//if(currObj.reviewCount == NaN) currObj.reviewCount = -1;
 
-		/*if(currIndex+1 != urlList.length)
+		if(currIndex+1 != urlList.length)
 			loadURL(urlList[currIndex+1].url, partial(fillURLlist, currIndex+1, 1));
 		else {
 			d("urlList filled.")
 			d("Rest counts/calls: " + restCounts + "/" + restCalls + " = " + restCounts/restCalls)
 			d(urlList)
-		}*/
-	}
-	urlList[currIndex] = currObj;
-	retify(currIndex);
-}
-
-function retify(start) {
-	for(var i = start + 1; i < 180; i++) {
-		if(urlList[i].reviewCount == null) {
-			loadURL(urlList[i].url + "review/", partial(fillURLlist, i, 2));
-			return;
 		}
 	}
-	d("end")
+	urlList[currIndex] = currObj;
 }
 
 function rest() {
