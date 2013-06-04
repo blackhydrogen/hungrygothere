@@ -10,3 +10,36 @@ indexes:
 # automatically uploaded to the admin console when you next deploy
 # your application using appcfg.py.
 
+- kind: Restaurant
+  properties:
+  - name: latitude_longitude
+  - name: address
+  - name: rating_overall
+  - name: title
+
+- kind: Restaurant
+  properties:
+  - name: latitude_longitude
+  - name: rating_overall
+    direction: desc
+  - name: review_count
+    direction: desc
+  - name: address
+  - name: title
+
+- kind: Restaurant
+  properties:
+  - name: rating_overall
+    direction: desc
+  - name: review_count
+    direction: desc
+
+- kind: Restaurant
+  properties:
+  - name: rating_overall
+    direction: desc
+  - name: review_count
+    direction: desc
+  - name: address
+  - name: latitude_longitude
+  - name: title
