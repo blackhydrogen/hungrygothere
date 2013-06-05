@@ -4,6 +4,7 @@ import jinja2
 import os
 import json
 import logging
+from operator import itemgetter
 from google.appengine.ext import db
 
 jinja_environment = jinja2.Environment(
@@ -31,11 +32,11 @@ class halfwayEatWhereHandler(webapp2.RequestHandler):
 
 ##### Ajax Handlers #####
 class getNearbyRestaurantsHandler(webapp2.RequestHandler):
-	#def get(self):
-		#self.response.headers["Content-Type"] = "application/json"
-		#self.response.out.write(json.dumps({"restaurants": [], "error": True, "errorMsg": "GET method not supported."}))
+	def get(self):
+		self.response.headers["Content-Type"] = "application/json"
+		self.response.out.write(json.dumps({"restaurants": [], "error": True, "errorMsg": "GET method not supported."}))
 	def post(self):
-		results = findNearbyRestaurants(self.request.get("latitude"), self.request.get("longitude"), 0.002);
+		results = findNearbyRestaurants(self.request.get("latitude"), self.request.get("longitude"), self.request.get("leeway"));
 		self.response.headers["Content-Type"] = "application/json"
 		self.response.out.write(json.dumps({"restaurants": results, "error": False}))
 
@@ -66,7 +67,8 @@ class Restaurant(db.Model):
 	rating_value = db.IntegerProperty()
 	rating_service = db.IntegerProperty()
 	review_count = db.IntegerProperty(required=True)
-	latitude_longitude = db.GeoPtProperty(required=True)
+	latitude = db.FloatProperty(required=True)
+	longitude = db.FloatProperty(required=True)
 	waitingtime_queuing = db.IntegerProperty()
 	waitingtime_serving = db.IntegerProperty()
 	url = db.StringProperty()
@@ -80,19 +82,36 @@ def findNearbyRestaurants(userLatitude, userLongitude, leeway = 0.02):
 	leeway = float(leeway)
 
 	query = db.GqlQuery(
-		"""SELECT title, address, rating_overall, latitude_longitude FROM Restaurant
-		WHERE latitude_longitude >= GEOPT(%f, %f) AND latitude_longitude <= GEOPT(%f, %f)"""
-		% (userLatitude - leeway, userLongitude - leeway, userLatitude + leeway, userLongitude + leeway)
+		"""SELECT title, address, rating_overall, review_count, latitude, longitude FROM Restaurant
+		WHERE longitude >= %f AND longitude <= %f"""
+		% (userLongitude - leeway, userLongitude + leeway)
 	)
 
 	results = []
 	for i in query:
+		if i.latitude < userLatitude - leeway or i.latitude > userLatitude + leeway:
+			continue
 		results.append({
 			"title": i.title,
 			"address": i.address,
 			"rating": i.rating_overall,
-			"latitude": i.latitude_longitude.lat,
-			"longitude": i.latitude_longitude.lon
+			"reviewCount": i.review_count,
+			"latitude": i.latitude,
+			"longitude": i.longitude
 		})
 
+	results = multikeysort(results, ['-rating', '-reviewCount'])[0:15]
 	return results
+
+# use it like multikeysort(b, ['-COL_A', 'COL_B'])
+def multikeysort(items, columns):
+    from operator import itemgetter
+    comparers = [ ((itemgetter(col[1:].strip()), -1) if col.startswith('-') else (itemgetter(col.strip()), 1)) for col in columns]  
+    def comparer(left, right):
+        for fn, mult in comparers:
+            result = cmp(fn(left), fn(right))
+            if result:
+                return mult * result
+        else:
+            return 0
+    return sorted(items, cmp=comparer)

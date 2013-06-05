@@ -12,6 +12,29 @@ indexes:
 
 - kind: Restaurant
   properties:
+  - name: address
+  - name: latitude_longitude
+  - name: rating_overall
+  - name: title
+
+- kind: Restaurant
+  properties:
+  - name: latitude
+  - name: address
+  - name: latitude_longitude
+  - name: rating_overall
+  - name: title
+
+- kind: Restaurant
+  properties:
+  - name: latitude
+  - name: address
+  - name: longitude
+  - name: rating_overall
+  - name: title
+
+- kind: Restaurant
+  properties:
   - name: latitude_longitude
   - name: address
   - name: rating_overall
@@ -25,6 +48,31 @@ indexes:
   - name: review_count
     direction: desc
   - name: address
+  - name: title
+
+- kind: Restaurant
+  properties:
+  - name: latitude_longitude.lat
+  - name: address
+  - name: latitude_longitude
+  - name: rating_overall
+  - name: title
+
+- kind: Restaurant
+  properties:
+  - name: longitude
+  - name: address
+  - name: latitude
+  - name: rating_overall
+  - name: review_count
+  - name: title
+
+- kind: Restaurant
+  properties:
+  - name: longitude
+  - name: address
+  - name: latitude
+  - name: rating_overall
   - name: title
 
 - kind: Restaurant
