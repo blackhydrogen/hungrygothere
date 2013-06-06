@@ -1,89 +1,24 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
-    <meta charset="utf-8">
-    <title>Simple markers</title>
+    <title>Where Can Eat</title>
     <script type="text/javascript" src="http://code.jquery.com/jquery.js"></script>
     <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false"></script>
-    <script>
-    var gmap;
-    var markers = [];
-function initialize() {
-  var singapore = new google.maps.LatLng(1.36835, 103.84415);
-  var mapOptions = {
-    zoom: 11,
-    center: singapore,
-    mapTypeId: google.maps.MapTypeId.ROADMAP
-  }
-  gmap = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
-
-/*  var marker = new google.maps.Marker({
-      position: singapore,
-      map: map,
-      title: 'Hello World!'
-  });*/
-}
-
-function findNearby() {
-  $.post("/getNearbyRestaurants", {latitude: $("#lat").val(), longitude: $("#lon").val(), leeway: $("#leeway").val()}, function(data, status) {
-    debug(JSON.stringify(data))
-    for(var i = 0; i < data.restaurants.length; i++) {
-      markers.push(new google.maps.Marker({
-        position: new google.maps.LatLng(data.restaurants[i].latitude, data.restaurants[i].longitude),
-        map: gmap,
-        title: data.restaurants[i].title
-      }))
-    }
-  }, "json");
-}
-
-function markBounderies() {
-  markers.push(new google.maps.Marker({
-    position: new google.maps.LatLng($("#lat").val(), $("#lon").val()),
-    map: gmap,
-    title: "Center"
-  }));
-  markers.push(new google.maps.Marker({
-    position: new google.maps.LatLng($("#lat").val() - 0 - $("#leeway").val(), $("#lon").val() - 0 - $("#leeway").val()),
-    map: gmap,
-    title: "Lower Bound"
-  }));
-  markers.push(new google.maps.Marker({
-    position: new google.maps.LatLng(parseFloat($("#lat").val()) + parseFloat($("#leeway").val()), parseFloat($("#lon").val()) + parseFloat($("#leeway").val())),
-    map: gmap,
-    title: "Upper Bound"
-  }));
-  debug($("#lat").val() - 0 - $("#leeway").val())
-  debug($("#lon").val() - 0 - $("#leeway").val())
-  debug(parseFloat($("#lat").val()) + parseFloat($("#leeway").val()))
-  debug(parseFloat($("#lon").val()) + parseFloat($("#leeway").val()))
-}
-
-function removeMarkers() {
-  while(markers.length != 0) {
-    markers.pop().setMap(null);
-  }
-}
-
-google.maps.event.addDomListener(window, 'load', initialize);
-
-function debug(v) {
-  document.getElementById("debug").innerHTML += v + "<br>";
-}
-    </script>
+    <script src="/scripts/whereCanEat.js"></script>
   </head>
   <body>
     <div id="panel">
+    <b>Query: </b>
+    <input type="text" id="query" value="west coast park">
+    <input type="button" value="Search" onclick="hgt.identifyLocation()">
+
     <b>Lat: </b>
     <input type="text" id="lat" value="1.29">
     <b>Long: </b>
     <input type="text" id="lon" value="103.77">
     <b>Leeway: </b>
     <input type="text" id="leeway" value="0.02">
-    <input type="button" value="Go" onclick="findNearby();">
-    <input type="button" value="Mark" onclick="markBounderies();">
-    <input type="button" value="Clear" onclick="removeMarkers();">
+    <input type="button" value="Go" onclick="hgt.findNearby($('#lat').val(), $('#lon').val(), $('#leeway').val());">
     </div>
     <div id="map-canvas" style="width:100%; height:500px"></div>
     <br><br>
