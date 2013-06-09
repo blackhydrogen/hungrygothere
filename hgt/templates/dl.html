@@ -1,10 +1,8 @@
 <script src="http://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false"></script>
-<script src="/scripts/kentridge.js"></script>
+<script src="/scripts/clementi_kentridge.js"></script>
 
 <script>
-if(urlList == undefined) {
-	urlList = [];
-}
+var urlList = clementi_kentridge;
 var restCalls = 0;
 var restCounts = 0;
 var geocoder;
@@ -30,12 +28,7 @@ function go() {
 	eval($("txt").value);
 }
 function d(v) {
-	if(v != urlList) {
-		$("txt").value = $("txt").value + "\n//" + v;
-	}
-	else {
-		$("txt").value = $("txt").value + "\n//" + JSON.stringify(urlList);
-	}
+	$("txt").value = $("txt").value + "\n//" + v;
 	$("txt").scrollTop = $("txt").scrollHeight;
 }
 function w(v) {
@@ -57,6 +50,7 @@ function parseSearch(startURL, pageNo) {
 
 	if(list.length != 20) {
 		d("INFO - <article> elements not 20. Proceeding to fill urlList.")
+		d("Total of " + urlList.length + " elements in urlList.")
 		fillURLlist();
 		return;
 	}
@@ -91,7 +85,7 @@ function loadURL(url, funcToCall, firstTime) { //firstTime is a bit of a misnome
 	if(firstTime == undefined) {
 		if(rest()) {
 			d("Resting...")
-			setTimeout(partial(loadURL, url, funcToCall, firstTime), 10000);
+			setTimeout(partial(loadURL, url, funcToCall, firstTime), getRestTime());
 			return;
 		}
 		d("Loading page " + url)
@@ -112,6 +106,16 @@ function loadURL(url, funcToCall, firstTime) { //firstTime is a bit of a misnome
 }
 
 function fillURLlist(currIndex, pageSelect) {
+	if(urlList[currIndex].title != undefined) {
+		d("Details exist for index " + index + ". Skipping...");
+		if(currIndex+1 != urlList.length)
+			loadURL(urlList[currIndex+1].url, partial(fillURLlist, currIndex+1, 1));
+		else {
+			d("urlList filled.")
+			d("Rest counts/calls: " + restCounts + "/" + restCalls + " = " + restCounts/restCalls)
+		}
+	}
+
 	if(currIndex == undefined) {
 		loadURL(urlList[0].url, partial(fillURLlist, 0, 1));
 		return;
@@ -154,7 +158,6 @@ function fillURLlist(currIndex, pageSelect) {
 		else {
 			d("urlList filled.")
 			d("Rest counts/calls: " + restCounts + "/" + restCalls + " = " + restCounts/restCalls)
-			d(urlList)
 		}
 	}
 	urlList[currIndex] = currObj;
@@ -162,7 +165,7 @@ function fillURLlist(currIndex, pageSelect) {
 
 function rest() {
 	restCalls++;
-	if(Math.random() < 0.2) {
+	if(Math.random() < 0.05) {
 		restCounts++;
 		return true;
 	}
@@ -172,9 +175,21 @@ function rest() {
 
 
 function findLonLat(index, dropSecond) {
+	if(urlList[index].longitude != undefined) {
+		d("Lon-Lat exists for index " + index + ". Skipping...");
+		if(index+1 != urlList.length) {
+			findLonLat(index+1);
+		}
+		else {
+			d("findLonLat finished.");
+			d("Rest counts/calls: " + restCounts + "/" + restCalls + " = " + restCounts/restCalls);
+		}
+		return;
+	}
+
 	if(rest()) {
 		d("Resting...")
-		setTimeout(partial(findLonLat, index, dropSecond), 3000);
+		setTimeout(partial(findLonLat, index, dropSecond), getRestTime());
 		return;
 	}
 	var address;
@@ -191,15 +206,15 @@ function findLonLat(index, dropSecond) {
 	geocoder.geocode({'address': address, 'bounds': searchBounds},
 		function(results, status) {
 			if (status == google.maps.GeocoderStatus.OK) {
-				w("Index " + index + ": " + results[0].geometry.location);
-				urlList[index].longitude = results[0].geometry.location.lng();
-				urlList[index].latitude = results[0].geometry.location.lat();
+				urlList[index].longitude = Math.round(results[0].geometry.location.lng()*1000000)/1000000;
+				urlList[index].latitude = Math.round(results[0].geometry.location.lat()*1000000)/1000000;
+				w("Index " + index + ": " + urlList[index].latitude + ", " + urlList[index].longitude);
 			}
 			else {
 				d('Geocode was not successful for the following reason: ' + status);
 				if(status == "OVER_QUERY_LIMIT") {
 					d("Forced rest...")
-					setTimeout(partial(findLonLat, index, dropSecond), 10000);
+					setTimeout(partial(findLonLat, index, dropSecond), getForcedRestTime());
 					return;
 				}
 
@@ -227,25 +242,73 @@ function findLonLat(index, dropSecond) {
 google.maps.event.addDomListener(window, 'load', function() { geocoder = new google.maps.Geocoder(); });
 
 function outputForSql() {
+	var everything = "";
 	for(var i = 0; i < urlList.length; i++) {
-		var t = "INSERT INTO restaurants VALUES(NULL, ";
-		t += "\"" + urlList[i].title + "\","
-		t += "\"" + urlList[i].address + "\","
-		t += "\"" + urlList[i].contact + "\","
-		t += (urlList[i].overallRating == -1) ? "NULL, " : urlList[i].overallRating * 2 + ",";
-		t += (urlList[i].foodRating == -1) ? "NULL, " : urlList[i].foodRating * 2 + ",";
-		t += (urlList[i].ambienceRating == -1) ? "NULL, " : urlList[i].ambienceRating * 2 + ",";
-		t += (urlList[i].valueRating == -1) ? "NULL, " : urlList[i].valueRating * 2 + ",";
-		t += (urlList[i].serviceRating == -1) ? "NULL, " : urlList[i].serviceRating * 2 + ",";
-		t += (urlList[i].reviewCount == -1) ? "0, " : urlList[i].reviewCount + ",";
-		t += urlList[i].longitude + ",";
-		t += urlList[i].latitude + ",";
-		t += "NULL, NULL, ";
-		t += "\"" + urlList[i].url + "\"";
-		t += ");"
-		t = t.replace("\n", "\\n")
-		d(t);
+		var t = "Restaurant(";
+		t += "uid=" + i + ",";
+		t += "title=\"" + urlList[i].title + "\","
+		t += "address=\"" + urlList[i].address + "\","
+		t += "contact=\"" + urlList[i].contact + "\","
+		t += "rating_overall=" + ((urlList[i].overallRating == null) ? "0," : urlList[i].overallRating * 2 + ",");
+		t += "rating_food=" + ((urlList[i].foodRating == null) ? "0," : urlList[i].foodRating * 2 + ",");
+		t += "rating_ambience=" + ((urlList[i].ambienceRating == null) ? "0," : urlList[i].ambienceRating * 2 + ",");
+		t += "rating_value=" + ((urlList[i].valueRating == null) ? "0," : urlList[i].valueRating * 2 + ",");
+		t += "rating_service=" + ((urlList[i].serviceRating == null) ? "0," : urlList[i].serviceRating * 2 + ",");
+		t += "review_count=" + urlList[i].reviewCount + ",";
+		t += "longitude=" + urlList[i].longitude + ",";
+		t += "latitude=" + urlList[i].latitude + ",";
+		t += "waitingtime_queuing=0,";
+		t += "waitingtime_serving=0,";
+		t += "url=\"" + urlList[i].url + "\"";
+		t += ").put();";
+
+		t = t.replace(/\n/g, "\\n").replace(/&/g, "&amp;").replace(/ /g, "&nbsp;").replace(/</g, "&lt;");
+		t += "<br>"
+		everything += t;
 	}
+	var output = window.open();
+	output.document.write(everything);
+}
+
+function clearAllTimeouts() {
+	var iddd = window.setTimeout(function() {}, 0);
+
+	while (iddd--) {
+	    window.clearTimeout(iddd); // will do nothing if no timeout with id is present
+	}
+}
+
+function toggleIframeView() {
+	if($("frButton").value == "Hide iFrame") {
+		$("fr").style.height = "1px";
+		$("frButton").value = "Show iFrame";
+	}
+	else {
+		$("fr").style.height = "100%";
+		$("frButton").value = "Hide iFrame";
+	}
+}
+
+function outputUrlList() {
+	var output = window.open();
+	output.document.write(JSON.stringify(urlList).replace(/&/g, "&amp;").replace(/ /g, "&nbsp;").replace(/</g, "&lt;"));
+}
+
+function getRestTime() {
+	var restTime = parseInt($("restTime").value);
+	if(isNaN(restTime)) {
+		restTime = 5;
+	}
+	$("restTimeUsed").innerHTML = restTime;
+	return restTime * 1000;
+}
+function getForcedRestTime() {
+	var restTime = parseInt($("forcedRestTime").value);
+	if(isNaN(restTime)) {
+		restTime = 15;
+	}
+	$("forcedRestTimeUsed").innerHTML = restTime;
+	return restTime * 1000;
 }
 </script>
 
@@ -254,7 +317,14 @@ function outputForSql() {
 //findLonLat(0);
 //outputForSql();
 </textarea><br>
-<input type="button" value="Go" onclick="go();" style="width: 79%">
-<input type="button" value="Filter Warnings" onclick="filterWarnings();" style="width: 20%">
+<input type="button" value="Go" onclick="go();" style="width: 40%">
+<input type="button" value="Filter Warnings" onclick="filterWarnings();">
+<input type="button" value="Clear Timeouts" onclick="clearAllTimeouts();">
+<input type="button" value="Show iFrame" id="frButton" onclick="toggleIframeView();">
+<input type="button" value="Output URL List" onclick="outputUrlList()">
+Rest Time: <input type="text" value="5" id="restTime" style="width:30px">
+(&nbsp;<span id="restTimeUsed">-</span>&nbsp;)
+Forced Rest Time: <input type="text" value="15" id="forcedRestTime" style="width:30px">
+(&nbsp;<span id="forcedRestTimeUsed">-</span>&nbsp;)
 <br>
-<iframe src="" style="width:100%; height: 100%" id="fr"></iframe>
+<iframe src="" style="width:100%; height: 1px" id="fr"></iframe>

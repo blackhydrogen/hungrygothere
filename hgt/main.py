@@ -26,6 +26,11 @@ class whereCanEatHandler(webapp2.RequestHandler):
 		template = jinja_environment.get_template("whereCanEat.html")
 		self.response.out.write(template.render())
 
+class genericTestHandler(webapp2.RequestHandler):
+	def get(self):
+		template = jinja_environment.get_template("location_test.html")
+		self.response.out.write(template.render())
+
 class halfwayEatWhereHandler(webapp2.RequestHandler):
 	def get(self):
 		self.response.out.write("output page template here")
@@ -51,6 +56,7 @@ app = webapp2.WSGIApplication([
 	("/", MainHandler),
 	("/ajax", AjaxHandler),
 	("/dl", DLHandler),
+	("/test", genericTestHandler),
 	("/whereCanEat", whereCanEatHandler),
 	("/getNearbyRestaurants", getNearbyRestaurantsHandler)
 ], debug=True)
@@ -58,6 +64,7 @@ app = webapp2.WSGIApplication([
 ##### Models #####
 
 class Restaurant(db.Model):
+	uid = db.IntegerProperty(required=True)
 	title = db.StringProperty(required=True)
 	address = db.StringProperty(required=True, multiline=True)
 	contact = db.StringProperty()

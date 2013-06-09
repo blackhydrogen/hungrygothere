@@ -1,0 +1,182 @@
+/*!
+ * HungryGoThere v1.0
+ *
+ * Copyright 2012 Earful, Inc
+ *
+ * Designed and built by JY
+ */
+
+.navbar-inner {
+    background-color: #000; /* background color will be black for all browsers */
+    background-image: none;
+    background-repeat: no-repeat;
+    filter: none;
+}
+
+.navbar .brand {
+  color: #ffffff;
+  text-shadow: none;
+}
+
+.navbar .nav > li > a {
+  color: #ffffff;
+  text-shadow: none;
+}
+
+.navbar .nav > li > a:focus,
+.navbar .nav > li > a:hover {
+  color: #ffffff;
+  background-color: #333333;
+  text-decoration: none;
+}
+
+.navbar .nav > .active > a,
+.navbar .nav > .active > a:hover,
+.navbar .nav > .active > a:focus {
+  color: #000000;
+  text-decoration: none;
+  background-color: #e5e5e5;
+  font-size: 16px;
+}
+
+
+.btn-xlarge {
+  padding: 18px 28px;
+  font-size: 20px;
+  line-height: normal;
+  -webkit-border-radius: 8px;
+     -moz-border-radius: 8px;
+          border-radius: 8px;
+}
+
+h1.title1 {
+  font-size: 35px;
+  line-height:normal;
+} 
+
+h1.title2 {
+  font-size: 25px;
+  line-height:normal;
+} 
+
+.fillparent {
+  width:90%;
+}
+
+.placeholder {
+  padding:10px;
+}
+
+.vertalign {
+  vertical-align:middle;
+}
+
+.btn-small {
+  padding: 10px 15px;
+  font-size: 16px;
+  line-height: normal;
+  -webkit-border-radius: 8px;
+     -moz-border-radius: 8px;
+          border-radius: 8px;
+}
+
+.biggerfont {
+  font-size: 14px;
+}
+
+.textbox {
+  display: block;
+  margin-right: auto;
+  margin-left: auto;
+  width: 250px;
+}
+
+.mininav {
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.mininavleft {
+  float: left;
+}
+
+.mininavright {
+  float: right;
+}
+
+#wherecaneat, #halfwayeatwhere, #mapview {
+  display: none;
+}
+
+body {
+  background-color: #9b200a;
+  color: white;
+}
+
+@media (min-width: 980px) {
+  body {
+    padding-top: 60px;
+    padding-bottom: 40px;
+  }
+
+  h1.title1{
+    font-size: 50px;
+  } 
+
+
+  h1.title2{
+  font-size: 50px;
+  } 
+
+
+  .btn-xlarge {
+    padding: 18px 28px;
+    font-size: 45px;
+    line-height: normal;
+    -webkit-border-radius: 8px;
+       -moz-border-radius: 8px;
+            border-radius: 8px;
+  }
+
+  .btn-large {
+    padding: 18px 28px;
+    font-size: 30px;
+    line-height: normal;
+    -webkit-border-radius: 8px;
+       -moz-border-radius: 8px;
+            border-radius: 8px;
+  }
+
+  .btn-small {
+    padding: 18px 28px;
+    font-size: 25px;
+    line-height: normal;
+    -webkit-border-radius: 8px;
+       -moz-border-radius: 8px;
+            border-radius: 8px;
+  }
+
+  .biggerfont {
+    font-size: 25px;
+  }
+
+  .placeholder {
+    padding:27px;
+  }
+
+  #currlocation, #currlocation1, #dummy, #destination {
+    height: 40px;
+    font-size: 25px;
+    vertical-align: middle;
+  }
+
+
+  .textbox {
+    display: block;
+    margin-right: auto;
+    margin-left: auto;
+    width: 80%;
+    height: 40px;
+    font-size: 35px;
+  }
+}

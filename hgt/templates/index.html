@@ -1,82 +1,133 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
-    <meta charset="utf-8">
-    <title>Directions service</title>
-    <script src="http://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false"></script>
-    <script>
-var directionsDisplay;
-var directionsService = new google.maps.DirectionsService();
-var map;
+<html lang="en">
+    <!--<head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Hungry Go There!</title>
+        <link href="css/bootstrap.css" rel="stylesheet">
+        <link href="css/bootstrap-responsive.css" rel="stylesheet">
+        <link href="css/hungrygothere.css" rel="stylesheet">
+        <script type="text/javascript" src="js/jquery.js"></script>
+        <script type="text/javascript" src="js/bootstrap.js"></script>
+    </head> -->
 
-function debug(string) {
-  document.getElementById("debug").innerHTML += string + "<br><br>";
-}
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Hungry Go There!</title>
+        <link href="http://twitter.github.io/bootstrap/assets/css/bootstrap.css" rel="stylesheet">
+        <link href="http://twitter.github.io/bootstrap/assets/css/bootstrap-responsive.css" rel="stylesheet">
+        <link href="/css/hungrygothere.css" rel="stylesheet">
+        <script type="text/javascript" src="http://code.jquery.com/jquery.js"></script>
+        <script type="text/javascript" src="http://twitter.github.io/bootstrap/assets/js/bootstrap.js"></script>
+        <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false"></script>
+        <script type="text/javascript" src="/scripts/hungrygothere.js"></script>
+    </head>
 
-function initialize() {
-  directionsDisplay = new google.maps.DirectionsRenderer();
-  var chicago = new google.maps.LatLng(1.36835, 103.84415);
-  var mapOptions = {
-    zoom:11,
-    mapTypeId: google.maps.MapTypeId.ROADMAP,
-    center: chicago
-  }
-  map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
-  directionsDisplay.setMap(map);
-}
+    <body onload="reset_fields(); hgt.findCurrentLocation();">    
+        <div id="wholething">
+            <div class="navbar navbar-fixed-top">
+                <div class="navbar-inner">
+                    <div class="container">
+                        
+                        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+                        <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        </a>
+                         
+                        <!-- Be sure to leave the brand out there if you want it shown -->
+                        <a class="brand" href="index.html">Hungry Go <u>T</u>here!</a>
+                         
+                        <!-- Everything you want hidden at 940px or less, place within here -->
+                        <div class="nav-collapse collapse">
+                            <!-- .nav, .navbar-search, .navbar-form, etc -->
+                            <ul class="nav">
+                                <li><a onclick="showPage1();">Home</a></li>
+                                <li><a onclick="showWhereCanEat();">Where Can Eat?</a></li>
+                                <li><a onclick="showHalfwayEatWhere();">Halfway Eat Where?</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-function calcRoute() {
-  var start = document.getElementById('start').value;
-  var end = document.getElementById('end').value;
-  var request = {
-      origin:start,
-      destination:end,
-      travelMode: google.maps.DirectionsTravelMode.TRANSIT
-  };
-  directionsService.route(request, function(response, status) {
-    /*out = ""
-    for(i in response.routes[0]) {
-      out += i + ": " + response.routes[0][i] + "<br><br>";
-    }
-    document.getElementById("debug").innerHTML = out;*/
+            <!--start Page1 area -->
+            <div class="container" id="page1">
+                <div class="row">
+                    <div class="span6 offset3">
+                        <div align="center">
+                            <h1 class="title1">Hungry Go <u>T</u>here!</h1>
+                            <div class="placeholder"></div>
+                            <button class="btn btn-xlarge btn-warning fillparent" onclick="showWhereCanEat();">Where Can Eat?</button>
+                            <div class="placeholder"></div>
+                            <button class="btn btn-xlarge btn-warning fillparent" onclick="showHalfwayEatWhere();">Halfway Eat Where?</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!--End Page1 area -->
 
-    //ajax stuff
-    var xmlhttp = new XMLHttpRequest();
+            <!--End Where Can Eat area -->
+            <div class="container" id="wherecaneat">
+                <div class="row">
+                    <div class="span6 offset3">
+                        <div align="center">
+                            <label><h1 class="title1">Where Are You?</h1></label>
+                            <input type="hidden" name="status" id="status" value="" />
+                            <input type="text" class="fillparent" id="currlocation" placeholder="Enter your start location!">
+                            <button type="button" onclick="update_currlocation();" class="btn btn-warning btn-small" data-toggle="button">Use My Current Location</button>
+                            <!--div class="placeholder"></div--><br /><br />
+                            <label><h1 class="title1">How You Go?</h1></label>
+                            <div class="btn-group" data-toggle="buttons-radio">
+                                <button type="button" class="btn btn-warning btn-small" onclick="drive();" id="Drive"><span class="biggerfont">Drive</span></button>
+                                <button type="button" class="btn btn-warning btn-small" onclick="bus();" id="Bus"><span class="biggerfont">Bus</span></button>
+                                <button type="button" class="btn btn-warning btn-small" onclick="walk();" id="Walk"><span class="biggerfont">Walk</span></button>
+                            </div><br /><br />
+                            <button class="btn btn-large fillparent" onclick="collect_form_info();">Tell Me Where Can Eat!</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!--End Where Can Eat area -->
 
-    xmlhttp.onreadystatechange = function()
-      {
-      if (xmlhttp.readyState==4 && xmlhttp.status==200)
-        {
-          debug(xmlhttp.responseText);
-        }
-      //if status!=200: flag error??
-      }
-    xmlhttp.open("POST","/ajax",true);
-    xmlhttp.setRequestHeader("Content-type","application/x-www-form-urlencoded");
-    xmlhttp.send("path_lon_lat=(" + encodeURIComponent(response.routes[0].overview_path) + ")");
 
-    if (status == google.maps.DirectionsStatus.OK) {
-      directionsDisplay.setDirections(response);
-    }
-  });
-}
+            <!--Start Halfway Eat Where area -->
+            <div class="container" id="halfwayeatwhere">
+                <div class="row">
+                    <div class="span6 offset3">
+                        <div align="center">
+                            <label><h1 class="title1">Where Are You?</h1></label>
+                            <input type="text" class="fillparent" id="currlocation1" placeholder="Enter your start location!">
+                            <button type="button" onclick="update_currlocation();" class="btn btn-warning btn-small" data-toggle="button">Use My Current Location</button>
+                            <div class="placeholder"></div>
+                            <label><h1 class="title1">Where To?</h1></label>
+                            <input type="text" class="fillparent" id="destination" placeholder="Enter your destination!"><br /><br />
+                            <button class="btn btn-large fillparent" onclick="collect_form2_info();">Tell Me Where Can Eat!</button>
+                        </div>
 
-google.maps.event.addDomListener(window, 'load', initialize);
+                    </div>
+                </div>
+            </div>
+            <!--End Halfway Eat Where area -->
+        </div>
 
-    </script>
-  </head>
-  <body>
-    <div id="panel">
-    <b>Start: </b>
-    <input type="text" id="start" value="323108">
+        <!--start map area -->
+        <div id="mapview">
+            <div class="container">
+                <div class="span8 offset2">
+                    <div align="center">
+                        <div class="row">
+                            <br />
+                            <button class="btn btn-warning mininav mininavleft" onclick="off_maps();">Back!</button>
+                            <button class="btn btn-warning mininav mininavright" onclick="off_maps();">List View</button>
+                            <br /><br />
+                            <div id="map-canvas" style="width:500px; height:500px"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--end map area -->
 
-    <b>End: </b>
-    <input type="text" id="end" value="455010">
-    <input type="button" value="Go" onclick="calcRoute();">
-    </div>
-    <div id="map-canvas" style="width:100%; height:500px"></div>
-    <br><br>
-    <div id="debug"></div>
-  </body>
+    </body>
 </html>

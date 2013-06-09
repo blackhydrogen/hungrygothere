@@ -1,0 +1,22 @@
+<script>
+hgt.findCurrentLocation = function() {
+	if(navigator.geolocation) {
+		navigator.geolocation.getCurrentPosition(success, failure, {timeout: 5000});
+	}
+	else {
+		hgt.currentLocationAvailable = false;
+	}
+}
+
+hgt.locationFoundSuccess = function(position) {
+	hgt.currentLocationAvailable = true;
+	hgt.currentLatitude = position.coords.latitude;
+	hgt.currentLongitude = position.coords.longitude;
+}
+
+function locationFoundFailure() {
+	hgt.currentLocationAvailable = false;
+}
+
+findCurrentLocation();
+</script>
