@@ -18,11 +18,12 @@
         <link href="css/hungrygothere.css" rel="stylesheet">
         <script type="text/javascript" src="http://code.jquery.com/jquery.js"></script>
         <script type="text/javascript" src="http://twitter.github.io/bootstrap/assets/js/bootstrap.js"></script>
+        <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false"></script>
         <script type="text/javascript" src="scripts/hgt_ui.js"></script>
         <script type="text/javascript" src="scripts/hgt_main.js"></script>
     </head>
 
-    <body onload="reset_fields();findCurrentLocation();">    
+    <body onload="reset_fields();hgt.findCurrentLocation();">    
         <div id="wholething">
             <div class="navbar navbar-fixed-top">
                 <div class="navbar-inner">

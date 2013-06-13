@@ -22,7 +22,7 @@ g.initialize = function() {
 
 var hgt = new Object();
 hgt.restaurants = []; //Aka the Master list of results
-hgt.currentLocationAvailable = null;
+hgt.currentLocationAvailable = false;
 hgt.currentLatitude = null;
 hgt.currentLongitude = null;
 hgt.leewayValues = {bus: 0.02, drive: 0.02, walk: 0.005};

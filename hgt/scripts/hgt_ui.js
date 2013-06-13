@@ -73,8 +73,8 @@ function update_currlocation() {
 	if (currlocinput.disabled == false || currlocinput1.disabled == false) {
 		currlocinput.disabled = true;
 		currlocinput1.disabled = true;
-		currlocinput.value = '(' + latitude +','+ longitude +')';
-		currlocinput1.value = '(' + latitude +','+ longitude +')';
+		currlocinput.value = '(' + hgt.currentLatitude +','+ hgt.currentLongitude +')';
+		currlocinput1.value = '(' + hgt.currentLatitude +','+ hgt.currentLongitude +')';
 	} else {
 		currlocinput.disabled = false;
 		currlocinput1.disabled = false;
@@ -123,7 +123,9 @@ function collect_form2_info() {
 }
 
 function print_curr_loc() {
-	document.getElementById('map-canvas').innerHTML = 'Your curent location is:<br />' + '(' + latitude +', '+ longitude + ')';
+	//document.getElementById('map-canvas').innerHTML 
+	var text = 'Your curent location is:<br />' + '(' + hgt.currentLatitude +', '+ hgt.currentLongitude + ')';
+	alert(text);
 }
 
 function drive() {
@@ -139,21 +141,4 @@ function bus() {
 function walk() {
 	var status = document.getElementById('status');
 	status.value = 'walk';
-}
-
-
-//Detect USER LOCATION
-var longitude;
-var latitude;
-function findCurrentLocation() {
-	if(navigator.geolocation) {
-	    navigator.geolocation.getCurrentPosition(function(position) {
-	    	latitude = position.coords.latitude;
-	    	longitude = position.coords.longitude;
-	        alert(latitude + ", " + longitude);
-    	});
-	}
-	else {
-		alert("Unable to find current location.");
-	}
 }
