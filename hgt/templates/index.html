@@ -15,14 +15,13 @@
         <title>Hungry Go There!</title>
         <link href="http://twitter.github.io/bootstrap/assets/css/bootstrap.css" rel="stylesheet">
         <link href="http://twitter.github.io/bootstrap/assets/css/bootstrap-responsive.css" rel="stylesheet">
-        <link href="/css/hungrygothere.css" rel="stylesheet">
+        <link href="css/hungrygothere.css" rel="stylesheet">
         <script type="text/javascript" src="http://code.jquery.com/jquery.js"></script>
         <script type="text/javascript" src="http://twitter.github.io/bootstrap/assets/js/bootstrap.js"></script>
-        <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false"></script>
-        <script type="text/javascript" src="/scripts/hungrygothere.js"></script>
+        <script type="text/javascript" src="js/hungrygothere.js"></script>
     </head>
 
-    <body onload="reset_fields(); hgt.findCurrentLocation();">    
+    <body onload="reset_fields();findCurrentLocation();">    
         <div id="wholething">
             <div class="navbar navbar-fixed-top">
                 <div class="navbar-inner">
@@ -112,7 +111,7 @@
         </div>
 
         <!--start map area -->
-        <div id="mapview">
+        <div id="mapview" style="display: none;">
             <div class="container">
                 <div class="span8 offset2">
                     <div align="center">
@@ -121,7 +120,7 @@
                             <button class="btn btn-warning mininav mininavleft" onclick="off_maps();">Back!</button>
                             <button class="btn btn-warning mininav mininavright" onclick="off_maps();">List View</button>
                             <br /><br />
-                            <div id="map-canvas" style="width:500px; height:500px"></div>
+                            <div id="map-canvas"></div>
                         </div>
                     </div>
                 </div>
