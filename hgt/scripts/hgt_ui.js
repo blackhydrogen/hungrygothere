@@ -18,14 +18,12 @@ function reset_fields() {
 
 	var destinput = document.getElementById('destination');
 	currlocinput.value = '';
-
-	latitude = null;
-	longitude = null;
 }
 
 //Navigation Buttons
 function show_maps() {
 	//hide main portion and display map
+	removeBodyPadding();
 	g.initialize();
 	var wholething = document.getElementById('wholething');
 	var mapview = document.getElementById('mapview');
@@ -34,6 +32,7 @@ function show_maps() {
 }
 
 function off_maps() {
+	addBodyPadding();
 	var wholething = document.getElementById('wholething');
 	var mapview = document.getElementById('mapview');
 	mapview.style.display = 'none';
@@ -41,6 +40,7 @@ function off_maps() {
 }
 
 function hideall() {
+	addBodyPadding();
 	var page1 = document.getElementById('page1');
 	var wherecaneat = document.getElementById('wherecaneat');
 	var halfwayeatwhere = document.getElementById('halfwayeatwhere');
@@ -142,4 +142,12 @@ function bus() {
 function walk() {
 	var status = document.getElementById('status');
 	status.value = 'walk';
+}
+
+function removeBodyPadding() {
+	document.body.style.cssText = "padding-top:0px; padding-bottom:0px";
+}
+
+function addBodyPadding() {
+	document.body.style.cssText = "";
 }
