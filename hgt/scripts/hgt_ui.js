@@ -26,6 +26,7 @@ function reset_fields() {
 //Navigation Buttons
 function show_maps() {
 	//hide main portion and display map
+	g.initialize();
 	var wholething = document.getElementById('wholething');
 	var mapview = document.getElementById('mapview');
 	wholething.style.display = 'none';
