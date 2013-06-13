@@ -24,11 +24,11 @@ function reset_fields() {
 function show_maps() {
 	//hide main portion and display map
 	removeBodyPadding();
-	g.initialize();
 	var wholething = document.getElementById('wholething');
 	var mapview = document.getElementById('mapview');
 	wholething.style.display = 'none';
 	mapview.style.display = 'block';
+	g.initialize();
 }
 
 function off_maps() {
