@@ -5,6 +5,8 @@
  *
  * ========================================================== */
 
+var hgtui = new Object();
+
 function reset_fields() {
 	var currlocinput = document.getElementById('currlocation');
 	currlocinput.disabled = false;
@@ -21,7 +23,7 @@ function reset_fields() {
 }
 
 //Navigation Buttons
-function show_maps() {
+hgtui.show_maps = function() {
 	//hide main portion and display map
 	removeBodyPadding();
 	var wholething = document.getElementById('wholething');
@@ -84,23 +86,22 @@ function update_currlocation() {
 	}
 }
 
-function collect_form_info() {
+hgtui.collect_wherecaneat_info = function() {
 	//Extract All User Data
 	var currentlocation = document.getElementById('currlocation');
 	var status = document.getElementById('status');
 
 	if ((currlocation.value == '') && (currlocation.disabled == false)) {
-		alert('Please enter your start location, or choose "Use Current Location!"');
+		hgt.inform('Please enter your start location, or choose "Use Current Location!"');
 	} else if (status.value == '') {
-		alert('Please choose a transport method!');
+		hgt.inform('Please choose a transport method!');
 	} else {
-		if (currentlocation.disabled == true){
-			print_curr_loc();
-			alert('Searching your Current Location, going by ' + status.value);	
+		if (currentlocation.disabled == true) {
+			hgt.getNearbyRestaurants(hgt.currentLatitude, hgt.currentLongitude, hgt.leewayValues[status.value]);
+			hgtui.showLoadingScreen();
 		} else {
 			alert('Searching ' + currentlocation.value + ', going by ' + status.value);
 		}
-		show_maps();
 	}
 }
 
@@ -121,12 +122,6 @@ function collect_form2_info() {
 		}
 		show_maps();
 	}
-}
-
-function print_curr_loc() {
-	//document.getElementById('map-canvas').innerHTML 
-	var text = 'Your curent location is:<br />' + '(' + hgt.currentLatitude +', '+ hgt.currentLongitude + ')';
-	alert(text);
 }
 
 function drive() {
@@ -150,4 +145,12 @@ function removeBodyPadding() {
 
 function addBodyPadding() {
 	document.body.style.cssText = "";
+}
+
+hgtui.showLoadingScreen = function() {
+
+}
+
+hgtui.hideLoadingScreen = function() {
+
 }

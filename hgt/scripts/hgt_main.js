@@ -13,7 +13,15 @@ g.initialize = function() {
 	var mapOptions = {
 		zoom: 11,
 		center: new google.maps.LatLng(1.36835, 103.84415),
-		mapTypeId: google.maps.MapTypeId.ROADMAP
+		mapTypeId: google.maps.MapTypeId.ROADMAP,
+		//mapTypeControl: false,
+		//overviewMapControl: false,
+		//panControl: false,
+		//rotateControl: false,
+		//scaleControl: false,
+		//streetViewControl: false,
+		//zoomControl: false,
+		backgroundColor: "#9b200a"
 	}
 	g.map = new google.maps.Map(document.getElementById("map-canvas"), mapOptions);
 }
@@ -49,8 +57,7 @@ hgt.currentLocationFoundFailure = function() {
 	hgt.currentLocationAvailable = false;
 }
 
-hgt.identifyLocation = function() {
-	var query = $("#query").val();
+hgt.identifyLocation = function(query) {
 	g.geocoder.geocode({'address': query, 'bounds': g.searchBounds},
 		function(results, status) {
 			if (status == google.maps.GeocoderStatus.OK) {
@@ -74,7 +81,7 @@ hgt.identifyLocation = function() {
 	);
 }
 
-hgt.findNearby = function(latitude, longitude, leeway) {
+hgt.getNearbyRestaurants = function(latitude, longitude, leeway) {
 	latitude = parseFloat(latitude);
 	longitude = parseFloat(longitude);
 	leeway = parseFloat(leeway);
@@ -83,7 +90,15 @@ hgt.findNearby = function(latitude, longitude, leeway) {
 		"/getNearbyRestaurants",
 		{latitude: latitude, longitude: longitude, leeway: leeway},
 		function(data, status) {
-			d("Find nearby returned " + data.restaurants.length + " results")
+			//d("Find nearby returned " + data.restaurants.length + " results")
+			hgtui.hideLoadingScreen();
+
+			if(data.restaurants.length == 0) {
+				hgt.inform("No restaurants were found near the given location. Please try a different location or choose a different transport option.");
+				return;
+			}
+
+			hgtui.show_maps();
 			hgt.clearMap();
 			hgt.markBounderies(latitude, longitude, leeway);
 			hgt.restaurants = data.restaurants;
@@ -153,6 +168,11 @@ hgt.clearMap = function() {
 	while(g.polygons.length != 0) {
 		g.polygons.pop().setMap(null);
 	}
+}
+
+hgt.inform = function(msg) {
+	//we may want to replace this alert with a nicer looking feature (overlaying DIV for example)
+	alert(msg);
 }
 
 function d(v) {

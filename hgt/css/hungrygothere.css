@@ -123,6 +123,10 @@ h1.title2 {
   height: 100%;
   background-color: #FFFFFF;
 }
+#map-canvas img {
+  max-width: none;
+}
+
 html {
   height: 100%;
 }
