@@ -46,9 +46,10 @@ function calcRoute() {
   var request = {
       origin:start,
       destination:end,
-      travelMode: google.maps.DirectionsTravelMode.TRANSIT
+      travelMode: google.maps.DirectionsTravelMode.DRIVING
   };
   directionsService.route(request, function(response, status) {
+    document.getElementById("debug").innerHTML += status;
     /*out = ""
     for(i in response.routes[0]) {
       out += i + ": " + response.routes[0][i] + "<br><br>";

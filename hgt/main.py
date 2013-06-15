@@ -28,7 +28,7 @@ class whereCanEatHandler(webapp2.RequestHandler):
 
 class genericTestHandler(webapp2.RequestHandler):
 	def get(self):
-		template = jinja_environment.get_template("location_test.html")
+		template = jinja_environment.get_template("directions_test.html")
 		self.response.out.write(template.render())
 
 class halfwayEatWhereHandler(webapp2.RequestHandler):
@@ -45,6 +45,16 @@ class getNearbyRestaurantsHandler(webapp2.RequestHandler):
 		self.response.headers["Content-Type"] = "application/json"
 		self.response.out.write(json.dumps({"restaurants": results, "error": False}))
 
+class getRestaurantsAlongRouteHandler(webapp2.RequestHandler):
+	def get(self):
+		self.response.headers["Content-Type"] = "application/json"
+		self.response.out.write(json.dumps({"restaurants": [], "error": True, "errorMsg": "GET method not supported."}))
+	def post(self):
+		route = eval(self.request.get("route"))
+		results = findNearbyRestaurants(route[-1][0], route[-1][1], self.request.get("leeway"));
+		self.response.headers["Content-Type"] = "application/json"
+		self.response.out.write(json.dumps({"restaurants": results, "error": False}))
+
 class AjaxHandler(webapp2.RequestHandler):
 	def post(self):
 		path_lon_lat = eval(self.request.get("path_lon_lat"))
@@ -58,7 +68,8 @@ app = webapp2.WSGIApplication([
 	("/dl", DLHandler),
 	("/test", genericTestHandler),
 	("/whereCanEat", whereCanEatHandler),
-	("/getNearbyRestaurants", getNearbyRestaurantsHandler)
+	("/getNearbyRestaurants", getNearbyRestaurantsHandler),
+	("/getRestaurantsAlongRoute", getRestaurantsAlongRouteHandler)
 ], debug=True)
 
 ##### Models #####

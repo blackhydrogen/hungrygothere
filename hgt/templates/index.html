@@ -23,7 +23,7 @@
         <script type="text/javascript" src="scripts/hgt_main.js"></script>
     </head>
 
-    <body onload="reset_fields();hgt.findCurrentLocation();">    
+    <body onload="hgtui.reset_fields(); hgt.findCurrentLocation();">    
         <div id="wholething">
             <div class="navbar navbar-fixed-top">
                 <div class="navbar-inner">
@@ -43,9 +43,9 @@
                         <div class="nav-collapse collapse">
                             <!-- .nav, .navbar-search, .navbar-form, etc -->
                             <ul class="nav">
-                                <li><a onclick="showPage1();">Home</a></li>
-                                <li><a onclick="showWhereCanEat();">Where Can Eat?</a></li>
-                                <li><a onclick="showHalfwayEatWhere();">Halfway Eat Where?</a></li>
+                                <li><a onclick="hgtui.showPage1();" href="#">Home</a></li>
+                                <li><a onclick="hgtui.showWhereCanEat();" href="#">Where Can Eat?</a></li>
+                                <li><a onclick="hgtui.showHalfwayEatWhere();" href="#">Halfway Eat Where?</a></li>
                             </ul>
                         </div>
                     </div>
@@ -59,9 +59,9 @@
                         <div align="center">
                             <h1 class="title1">Hungry Go <u>T</u>here!</h1>
                             <div class="placeholder"></div>
-                            <button class="btn btn-xlarge btn-warning fillparent" onclick="showWhereCanEat();">Where Can Eat?</button>
+                            <button class="btn btn-xlarge btn-warning fillparent" onclick="hgtui.showWhereCanEat();">Where Can Eat?</button>
                             <div class="placeholder"></div>
-                            <button class="btn btn-xlarge btn-warning fillparent" onclick="showHalfwayEatWhere();">Halfway Eat Where?</button>
+                            <button class="btn btn-xlarge btn-warning fillparent" onclick="hgtui.showHalfwayEatWhere();">Halfway Eat Where?</button>
                         </div>
                     </div>
                 </div>
@@ -76,13 +76,13 @@
                             <label><h1 class="title1">Where Are You?</h1></label>
                             <input type="hidden" name="status" id="status" value="" />
                             <input type="text" class="fillparent" id="currlocation" placeholder="Enter your start location!">
-                            <button type="button" onclick="update_currlocation();" class="btn btn-warning btn-small" data-toggle="button">Use My Current Location</button>
+                            <button type="button" onclick="hgtui.update_currlocation();" class="btn btn-warning btn-small" data-toggle="button">Use My Current Location</button>
                             <!--div class="placeholder"></div--><br /><br />
                             <label><h1 class="title1">How You Go?</h1></label>
                             <div class="btn-group" data-toggle="buttons-radio">
-                                <button type="button" class="btn btn-warning btn-small" onclick="drive();" id="Drive"><span class="biggerfont">Drive</span></button>
-                                <button type="button" class="btn btn-warning btn-small" onclick="bus();" id="Bus"><span class="biggerfont">Bus</span></button>
-                                <button type="button" class="btn btn-warning btn-small" onclick="walk();" id="Walk"><span class="biggerfont">Walk</span></button>
+                                <button type="button" class="btn btn-warning btn-small" onclick="hgtui.setDrive();" id="Drive"><span class="biggerfont">Drive</span></button>
+                                <button type="button" class="btn btn-warning btn-small" onclick="hgtui.setBus();" id="Bus"><span class="biggerfont">Bus</span></button>
+                                <button type="button" class="btn btn-warning btn-small" onclick="hgtui.setWalk();" id="Walk"><span class="biggerfont">Walk</span></button>
                             </div><br /><br />
                             <button class="btn btn-large fillparent" onclick="hgtui.collect_wherecaneat_info();">Tell Me Where Can Eat!</button>
                         </div>
@@ -99,11 +99,11 @@
                         <div align="center">
                             <label><h1 class="title1">Where Are You?</h1></label>
                             <input type="text" class="fillparent" id="currlocation1" placeholder="Enter your start location!">
-                            <button type="button" onclick="update_currlocation();" class="btn btn-warning btn-small" data-toggle="button">Use My Current Location</button>
+                            <button type="button" onclick="hgtui.update_currlocation1();" class="btn btn-warning btn-small" data-toggle="button">Use My Current Location</button>
                             <div class="placeholder"></div>
                             <label><h1 class="title1">Where To?</h1></label>
                             <input type="text" class="fillparent" id="destination" placeholder="Enter your destination!"><br /><br />
-                            <button class="btn btn-large fillparent" onclick="collect_form2_info();">Tell Me Where Can Eat!</button>
+                            <button class="btn btn-large fillparent" onclick="hgtui.collect_halfwayeatwhere_info();">Tell Me Halfway Eat Where!</button>
                         </div>
 
                     </div>
@@ -119,8 +119,8 @@
                 <div id="map-canvas"></div>
                 <div id="buttonsonmap" class align="center">
                     <div class="container">
-                        <button class="btn btn-warning mininav mininavleft" onclick="off_maps();">Back!</button>
-                        <button class="btn btn-warning mininav mininavright" onclick="off_maps();">List View</button>
+                        <button class="btn btn-warning mininav mininavleft" onclick="hgtui.off_maps();">Back!</button>
+                        <button class="btn btn-warning mininav mininavright" onclick="hgtui.off_maps();">List View</button>
                     </div>
                 </div>
             </div>

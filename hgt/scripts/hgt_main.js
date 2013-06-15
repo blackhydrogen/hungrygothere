@@ -3,13 +3,14 @@
 //g object is for all the google maps related stuff
 var g = new Object();
 g.map = null;
-g.geocoder = null;
+g.geocoder = new google.maps.Geocoder();
+g.directionsService = new google.maps.DirectionsService();
+g.directionsRenderer = new google.maps.DirectionsRenderer();
 g.markers = [];
 g.polygons = [];
 g.searchBounds = new google.maps.LatLngBounds(new google.maps.LatLng(1.22, 103.6, false), new google.maps.LatLng(1.472, 104.04, false)); //A box containing singapore; limit our searches to singpore only.
 
 g.initialize = function() {
-	g.geocoder = new google.maps.Geocoder();
 	var mapOptions = {
 		zoom: 11,
 		center: new google.maps.LatLng(1.36835, 103.84415),
@@ -24,6 +25,7 @@ g.initialize = function() {
 		backgroundColor: "#9b200a"
 	}
 	g.map = new google.maps.Map(document.getElementById("map-canvas"), mapOptions);
+	g.directionsRenderer.setMap(g.map);
 }
 
 //google.maps.event.addDomListener(window, 'load', g.initialize);
@@ -33,11 +35,11 @@ hgt.restaurants = []; //Aka the Master list of results
 hgt.currentLocationAvailable = false;
 hgt.currentLatitude = null;
 hgt.currentLongitude = null;
-hgt.leewayValues = {bus: 0.02, drive: 0.02, walk: 0.005};
+hgt.leewayValues = {bus: 0.02, drive: 0.03, walk: 0.005};
+hgt.centreName = "";
+hgt.getRestaurantsAlongRoute_callIdTracker = 0;
+hgt.getRestaurantsAlongRoute_variables = [];
 
-var debugText = "";
-
-//Detect USER LOCATION
 hgt.findCurrentLocation = function() {
 	if(navigator.geolocation) {
 		navigator.geolocation.getCurrentPosition(hgt.currentLocationFoundSuccess, hgt.currentLocationFoundFailure, {timeout: 5000});
@@ -48,15 +50,18 @@ hgt.findCurrentLocation = function() {
 }
 
 hgt.currentLocationFoundSuccess = function(position) {
+	//activate current location button??
 	hgt.currentLocationAvailable = true;
 	hgt.currentLatitude = position.coords.latitude;
 	hgt.currentLongitude = position.coords.longitude;
 }
 
 hgt.currentLocationFoundFailure = function() {
+	//disable current location button??
 	hgt.currentLocationAvailable = false;
 }
 
+//obsolete
 hgt.identifyLocation = function(query) {
 	g.geocoder.geocode({'address': query, 'bounds': g.searchBounds},
 		function(results, status) {
@@ -81,7 +86,35 @@ hgt.identifyLocation = function(query) {
 	);
 }
 
-hgt.getNearbyRestaurants = function(latitude, longitude, leeway) {
+hgt.getNearbyRestaurantsByNamedLocation = function(namedLocation, leeway) {
+	g.geocoder.geocode({'address': namedLocation, 'bounds': g.searchBounds},
+		function(results, status) {
+			if (status == google.maps.GeocoderStatus.OK) {
+				if(results.length == 1) {
+					hgt.getNearbyRestaurantsByLatLon(results[0].geometry.location.lat(), results[0].geometry.location.lng(), leeway)
+				}
+				else {
+					alert("too many results!")
+					//list the results
+				}
+			}
+			else {
+				hgtui.hideLoadingScreen();
+				if(status == google.maps.GeocoderStatus.ZERO_RESULTS) {
+					hgtui.inform("No results were found for " + namedLocation + ". Please try with a different location.");
+				}
+				else if(status == google.maps.GeocoderStatus.OVER_QUERY_LIMIT) {
+					hgtui.inform("The server is busy. Please wait a while and try again.");
+				}
+				else {
+					hgtui.inform("An error occured while contacting the server. Please try again in a while.");
+				}
+			}
+		}
+	);
+}
+
+hgt.getNearbyRestaurantsByLatLon = function(latitude, longitude, leeway) {
 	latitude = parseFloat(latitude);
 	longitude = parseFloat(longitude);
 	leeway = parseFloat(leeway);
@@ -94,13 +127,30 @@ hgt.getNearbyRestaurants = function(latitude, longitude, leeway) {
 			hgtui.hideLoadingScreen();
 
 			if(data.restaurants.length == 0) {
-				hgt.inform("No restaurants were found near the given location. Please try a different location or choose a different transport option.");
+				hgtui.inform("No restaurants were found near the given location. Please try a different location or choose a different transport option.");
 				return;
 			}
 
 			hgtui.show_maps();
 			hgt.clearMap();
-			hgt.markBounderies(latitude, longitude, leeway);
+
+			hgt.markBoundarySquare(latitude, longitude, leeway); //for debug only - to remove in production
+			
+			g.map.fitBounds(new google.maps.LatLngBounds(
+				new google.maps.LatLng(latitude - leeway, longitude - leeway),
+				new google.maps.LatLng(latitude + leeway, longitude + leeway))
+			)
+
+			g.markers.push(
+				new google.maps.Marker({
+					position: new google.maps.LatLng(latitude, longitude),
+					map: g.map,
+					icon: "http://www.google.com/mapfiles/arrow.png",
+					shadow: "http://www.google.com/mapfiles/arrowshadow.png",
+					title: hgt.centreName
+				})
+			);
+
 			hgt.restaurants = data.restaurants;
 			for(var i = 0; i < data.restaurants.length; i++) {
 				g.markers.push(
@@ -111,12 +161,175 @@ hgt.getNearbyRestaurants = function(latitude, longitude, leeway) {
 					})
 				)
 			}
+
 		},
 		"json"
 	);
 }
 
-hgt.markBounderies = function(latitude, longitude, leeway) {
+//use startLocation = null to use current location
+hgt.getRestaurantsAlongRoute = function(startLocation, endLocation) {
+	var callId = hgt.getRestaurantsAlongRoute_callIdTracker;
+	hgt.getRestaurantsAlongRoute_callIdTracker++;
+	hgt.getRestaurantsAlongRoute_variables.push({status: "waiting", leeway: hgt.leewayValues.drive}); //leeway assumed currently, option to drive/transit may be added later
+
+	if(startLocation != null) {
+		g.geocoder.geocode({'address': startLocation, 'bounds': g.searchBounds},
+			function(results, status) {
+				if (status == google.maps.GeocoderStatus.OK) {
+					if(results.length == 1) {
+						hgt.getRestaurantsAlongRoute_setStartCoordinates(callId, results[0].geometry.location.lat(), results[0].geometry.location.lng())
+					}
+					else {
+						alert("too many results!")
+						//list the results
+					}
+				}
+				else {
+					hgtui.hideLoadingScreen();
+					hgt.getRestaurantsAlongRoute_variables[callId].status = "cancelled";
+					if(status == google.maps.GeocoderStatus.ZERO_RESULTS) {
+						hgtui.inform("No results were found for " + namedLocation + ". Please try with a different location.");
+					}
+					else if(status == google.maps.GeocoderStatus.OVER_QUERY_LIMIT) {
+						hgtui.inform("The server is busy. Please wait a while and try again.");
+					}
+					else {
+						hgtui.inform("An error occured while contacting the server. Please try again in a while.");
+					}
+				}
+			}
+		);
+	}
+	else {
+		hgt.getRestaurantsAlongRoute_setStartCoordinates(callId, hgt.currentLatitude, hgt.currentLongitude);
+	}
+
+	g.geocoder.geocode({'address': endLocation, 'bounds': g.searchBounds},
+		function(results, status) {
+			if (status == google.maps.GeocoderStatus.OK) {
+				if(results.length == 1) {
+					hgt.getRestaurantsAlongRoute_setEndCoordinates(callId, results[0].geometry.location.lat(), results[0].geometry.location.lng())
+				}
+				else {
+					alert("too many results!")
+					//list the results
+				}
+			}
+			else {
+				hgtui.hideLoadingScreen();
+				hgt.getRestaurantsAlongRoute_variables[callId].status = "cancelled";
+				if(status == google.maps.GeocoderStatus.ZERO_RESULTS) {
+					hgtui.inform("No results were found for " + namedLocation + ". Please try with a different location.");
+				}
+				else if(status == google.maps.GeocoderStatus.OVER_QUERY_LIMIT) {
+					hgtui.inform("The server is busy. Please wait a while and try again.");
+				}
+				else {
+					hgtui.inform("An error occured while contacting the server. Please try again in a while.");
+				}
+			}
+		}
+	);
+}
+
+hgt.getRestaurantsAlongRoute_setStartCoordinates = function(callId, latitude, longitude) {
+	if(hgt.getRestaurantsAlongRoute_variables[callId].status == "waiting") {
+		hgt.getRestaurantsAlongRoute_variables[callId].startLatitude = parseFloat(latitude);
+		hgt.getRestaurantsAlongRoute_variables[callId].startLongitude = parseFloat(longitude);
+		if(hgt.getRestaurantsAlongRoute_variables[callId].endLatitude != undefined) {
+			hgt.getRestaurantsAlongRoute_variables[callId].status = "plottingRoute";
+			hgt.getRestaurantsAlongRoute_plotRoute(callId);
+		}
+	}
+	//else do nothing - the current callId is invalid
+}
+
+hgt.getRestaurantsAlongRoute_setEndCoordinates = function(callId, latitude, longitude) {
+	if(hgt.getRestaurantsAlongRoute_variables[callId].status == "waiting") {
+		hgt.getRestaurantsAlongRoute_variables[callId].endLatitude = parseFloat(latitude);
+		hgt.getRestaurantsAlongRoute_variables[callId].endLongitude = parseFloat(longitude);
+		if(hgt.getRestaurantsAlongRoute_variables[callId].startLatitude != undefined) {
+			hgt.getRestaurantsAlongRoute_variables[callId].status = "plottingRoute";
+			hgt.getRestaurantsAlongRoute_plotRoute(callId);
+		}
+	}
+	//else do nothing - the current callId is invalid
+}
+
+hgt.getRestaurantsAlongRoute_plotRoute = function(callId) {
+	if(hgt.getRestaurantsAlongRoute_variables[callId].status == "plottingRoute") {
+		hgt.getRestaurantsAlongRoute_variables[callId].status = "plottingRoute_executing";
+
+		var request = {
+			origin: new google.maps.LatLng(
+				hgt.getRestaurantsAlongRoute_variables[callId].startLatitude,
+				hgt.getRestaurantsAlongRoute_variables[callId].startLongitude
+			),
+			destination: new google.maps.LatLng(
+				hgt.getRestaurantsAlongRoute_variables[callId].endLatitude,
+				hgt.getRestaurantsAlongRoute_variables[callId].endLongitude
+			),
+			travelMode: google.maps.DirectionsTravelMode.DRIVING
+		};
+
+		g.directionsService.route(request,
+			function(response, status) {
+				if (status == google.maps.DirectionsStatus.OK) {
+					hgt.getRestaurantsAlongRoute_variables[callId].status = "gettingRestaurants";
+					hgt.getRestaurantsAlongRoute_getRestaurants(callId, response);
+				}
+				else {
+					hgt.getRestaurantsAlongRoute_variables[callId].status = "cancelled";
+				}
+			}
+		);
+		hgt.getRestaurantsAlongRoute_variables[callId].status = "plottingRoute_waiting";
+	}
+	//else do nothing - the current callId is invalid
+}
+
+hgt.getRestaurantsAlongRoute_getRestaurants = function(callId, routesResult) {
+	if(hgt.getRestaurantsAlongRoute_variables[callId].status == "gettingRestaurants") {
+		hgt.getRestaurantsAlongRoute_variables[callId].status = "gettingRestaurants_executing";
+
+		$.post(
+			"/getRestaurantsAlongRoute",
+			{route: routesResult.routes[0].overview_path.toString(), leeway: hgt.getRestaurantsAlongRoute_variables[callId].leeway},
+			function(data, status) {
+				hgtui.hideLoadingScreen();
+
+				if(data.restaurants.length == 0) {
+					hgt.getRestaurantsAlongRoute_variables[callId].status = "cancelled";
+					hgtui.inform("No restaurants were found near the given route.");
+					return;
+				}
+
+				hgtui.show_maps();
+				hgt.clearMap();
+
+				g.directionsRenderer.setDirections(routesResult);
+
+				hgt.restaurants = data.restaurants;
+				for(var i = 0; i < data.restaurants.length; i++) {
+					g.markers.push(
+						new google.maps.Marker({
+							position: new google.maps.LatLng(data.restaurants[i].latitude, data.restaurants[i].longitude),
+							map: g.map,
+							title: data.restaurants[i].title
+						})
+					)
+				}
+
+				hgt.getRestaurantsAlongRoute_variables[callId].status = "done";
+			},
+			"json"
+		);
+	}
+	//else do nothing - the current callId is invalid
+}
+
+hgt.markBoundarySquare = function(latitude, longitude, leeway) {
 	latitude = parseFloat(latitude);
 	longitude = parseFloat(longitude);
 	leeway = parseFloat(leeway);
@@ -146,19 +359,6 @@ hgt.markBounderies = function(latitude, longitude, leeway) {
 	);
 	
 	g.polygons[0].setMap(g.map);
-
-	g.map.setZoom(14);
-	g.map.panTo(new google.maps.LatLng(latitude, longitude));
-
-	g.markers.push(
-		new google.maps.Marker({
-			position: new google.maps.LatLng(latitude, longitude),
-			map: g.map,
-			icon: "http://www.google.com/mapfiles/arrow.png",
-			shadow: "http://www.google.com/mapfiles/arrowshadow.png",
-			title: "Center"
-		})
-	);
 }
 
 hgt.clearMap = function() {
@@ -168,13 +368,11 @@ hgt.clearMap = function() {
 	while(g.polygons.length != 0) {
 		g.polygons.pop().setMap(null);
 	}
+	g.directionsRenderer.setDirections({routes: []});
 }
 
-hgt.inform = function(msg) {
-	//we may want to replace this alert with a nicer looking feature (overlaying DIV for example)
-	alert(msg);
-}
+
 
 function d(v) {
-	debugText += v + "\n";
+	console.log(v);
 }

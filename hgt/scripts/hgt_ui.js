@@ -6,8 +6,10 @@
  * ========================================================== */
 
 var hgtui = new Object();
+hgtui.currlocation_previousValue = "";
+hgtui.currlocation1_previousValue = "";
 
-function reset_fields() {
+hgtui.reset_fields = function() {
 	var currlocinput = document.getElementById('currlocation');
 	currlocinput.disabled = false;
 	currlocinput.value = '';
@@ -25,7 +27,10 @@ function reset_fields() {
 //Navigation Buttons
 hgtui.show_maps = function() {
 	//hide main portion and display map
-	removeBodyPadding();
+	
+	document.body.style.cssText = "padding-top:0px; padding-bottom:0px";
+	document.documentElement.style.cssText = "height: 100%";
+
 	var wholething = document.getElementById('wholething');
 	var mapview = document.getElementById('mapview');
 	wholething.style.display = 'none';
@@ -33,16 +38,20 @@ hgtui.show_maps = function() {
 	g.initialize();
 }
 
-function off_maps() {
-	addBodyPadding();
+hgtui.off_maps = function() {
+	document.body.style.cssText = "";
+	document.documentElement.style.cssText = "";
+
 	var wholething = document.getElementById('wholething');
 	var mapview = document.getElementById('mapview');
 	mapview.style.display = 'none';
 	wholething.style.display = 'block';
 }
 
-function hideall() {
-	addBodyPadding();
+hgtui.hideall = function() {
+	document.body.style.cssText = "";
+	document.documentElement.style.cssText = "";
+
 	var page1 = document.getElementById('page1');
 	var wherecaneat = document.getElementById('wherecaneat');
 	var halfwayeatwhere = document.getElementById('halfwayeatwhere');
@@ -51,38 +60,46 @@ function hideall() {
 	halfwayeatwhere.style.display = 'none';
 }
 
-function showPage1() {
-	hideall();
+hgtui.showPage1 = function() {
+	hgtui.hideall();
 	var page1 = document.getElementById('page1');
 	page1.style.display = 'block';
 }
 
-function showWhereCanEat() {
-	hideall();
+hgtui.showWhereCanEat = function() {
+	hgtui.hideall();
 	var wherecaneat = document.getElementById('wherecaneat');
 	wherecaneat.style.display = 'block';
 }
 
-function showHalfwayEatWhere() {
-	hideall();
+hgtui.showHalfwayEatWhere = function() {
+	hgtui.hideall();
 	var halfwayeatwhere = document.getElementById('halfwayeatwhere');
 	halfwayeatwhere.style.display = 'block';
 }
 
 //Functionality
-function update_currlocation() {
+hgtui.update_currlocation = function() {
 	var currlocinput = document.getElementById('currlocation');
-	var currlocinput1 = document.getElementById('currlocation1');
-	if (currlocinput.disabled == false || currlocinput1.disabled == false) {
+	if (currlocinput.disabled == false) {
+		hgtui.currlocation_previousValue = currlocinput.value;
 		currlocinput.disabled = true;
-		currlocinput1.disabled = true;
 		currlocinput.value = '(' + hgt.currentLatitude +','+ hgt.currentLongitude +')';
-		currlocinput1.value = '(' + hgt.currentLatitude +','+ hgt.currentLongitude +')';
 	} else {
 		currlocinput.disabled = false;
+		currlocinput.value = hgtui.currlocation_previousValue;
+	}
+}
+
+hgtui.update_currlocation1 = function() {
+	var currlocinput1 = document.getElementById('currlocation1');
+	if (currlocinput1.disabled == false) {
+		hgtui.currlocation1_previousValue = currlocinput1.value;
+		currlocinput1.disabled = true;
+		currlocinput1.value = '(' + hgt.currentLatitude +','+ hgt.currentLongitude +')';
+	} else {
 		currlocinput1.disabled = false;
-		currlocinput.value = '';
-		currlocinput1.value = '';
+		currlocinput1.value = hgtui.currlocation1_previousValue;
 	}
 }
 
@@ -91,60 +108,55 @@ hgtui.collect_wherecaneat_info = function() {
 	var currentlocation = document.getElementById('currlocation');
 	var status = document.getElementById('status');
 
-	if ((currlocation.value == '') && (currlocation.disabled == false)) {
-		hgt.inform('Please enter your start location, or choose "Use Current Location!"');
+	if ((currentlocation.value == '') && (currentlocation.disabled == false)) {
+		hgtui.inform('Please enter your start location, or choose "Use Current Location!"');
 	} else if (status.value == '') {
-		hgt.inform('Please choose a transport method!');
+		hgtui.inform('Please choose a transport method!');
 	} else {
+		hgtui.showLoadingScreen();
 		if (currentlocation.disabled == true) {
-			hgt.getNearbyRestaurants(hgt.currentLatitude, hgt.currentLongitude, hgt.leewayValues[status.value]);
-			hgtui.showLoadingScreen();
+			hgt.centreName = "Current Location";
+			hgt.getNearbyRestaurantsByLatLon(hgt.currentLatitude, hgt.currentLongitude, hgt.leewayValues[status.value]);
 		} else {
-			alert('Searching ' + currentlocation.value + ', going by ' + status.value);
+			hgt.centreName = currentlocation.value;
+			hgt.getNearbyRestaurantsByNamedLocation(currentlocation.value, hgt.leewayValues[status.value]);
 		}
 	}
 }
 
-function collect_form2_info() {
-	var currentlocation = document.getElementById('currlocation');
+hgtui.collect_halfwayeatwhere_info = function() {
+	var currentlocation = document.getElementById('currlocation1');
 	var destination = document.getElementById('destination');
 
-	if ((currlocation.value == '') && (currlocation.disabled == false)) {
-		alert('Please enter your start location, or choose "Use Current Location!"');
+	if ((currentlocation.value == '') && (currentlocation.disabled == false)) {
+		hgtui.inform('Please enter your start location, or choose "Use Current Location!"');
 	} else if (destination.value == '') {
-		alert('Please enter your Destination!');
+		hgtui.inform('Please enter your Destination!');
 	} else {
+		hgtui.showLoadingScreen();
 		if (currentlocation.disabled == true) {
-			print_curr_loc();
-			alert('Searching NAISE Makan Places from your Current Location to ' + destination.value);	
+			hgt.getRestaurantsAlongRoute(null, destination.value);
+			//alert('Searching NAISE Makan Places from your Current Location to ' + destination.value);
 		} else {
-			alert('Searching NAISE Makan Places from ' + currentlocation.value + ' to ' + destination.value);
+			hgt.getRestaurantsAlongRoute(currentlocation.value, destination.value);
+			//alert('Searching NAISE Makan Places from ' + currentlocation.value + ' to ' + destination.value);
 		}
-		show_maps();
 	}
 }
 
-function drive() {
+hgtui.setDrive = function() {
 	var status = document.getElementById('status');
 	status.value = 'drive';
 }
 
-function bus() {
+hgtui.setBus = function() {
 	var status = document.getElementById('status');
 	status.value = 'bus';
 }
 
-function walk() {
+hgtui.setWalk = function() {
 	var status = document.getElementById('status');
 	status.value = 'walk';
-}
-
-function removeBodyPadding() {
-	document.body.style.cssText = "padding-top:0px; padding-bottom:0px";
-}
-
-function addBodyPadding() {
-	document.body.style.cssText = "";
 }
 
 hgtui.showLoadingScreen = function() {
@@ -153,4 +165,9 @@ hgtui.showLoadingScreen = function() {
 
 hgtui.hideLoadingScreen = function() {
 
+}
+
+hgtui.inform = function(msg) {
+	//we may want to replace this alert with a nicer looking feature (overlaying DIV for example)
+	alert(msg);
 }
