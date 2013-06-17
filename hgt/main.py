@@ -50,8 +50,7 @@ class getRestaurantsAlongRouteHandler(webapp2.RequestHandler):
 		self.response.headers["Content-Type"] = "application/json"
 		self.response.out.write(json.dumps({"restaurants": [], "error": True, "errorMsg": "GET method not supported."}))
 	def post(self):
-		route = eval(self.request.get("route"))
-		results = findNearbyRestaurants(route[-1][0], route[-1][1], self.request.get("leeway"));
+		results = findRestaurantsAlongRoute(self.request.get("route"), self.request.get("leeway"))
 		self.response.headers["Content-Type"] = "application/json"
 		self.response.out.write(json.dumps({"restaurants": results, "error": False}))
 
@@ -99,6 +98,8 @@ def findNearbyRestaurants(userLatitude, userLongitude, leeway = 0.02):
 	userLongitude = float(userLongitude)
 	leeway = float(leeway)
 
+	leewaySquared = leeway ** 2
+
 	query = db.GqlQuery(
 		"""SELECT title, address, rating_overall, review_count, latitude, longitude FROM Restaurant
 		WHERE longitude >= %f AND longitude <= %f"""
@@ -107,7 +108,9 @@ def findNearbyRestaurants(userLatitude, userLongitude, leeway = 0.02):
 
 	results = []
 	for i in query:
-		if i.latitude < userLatitude - leeway or i.latitude > userLatitude + leeway:
+		#if i.latitude < userLatitude - leeway or i.latitude > userLatitude + leeway:
+		#squares are awkward, circles less so
+		if ((i.latitude - userLatitude) ** 2 + (i.longitude - userLongitude) ** 2) >= leewaySquared:
 			continue
 		results.append({
 			"title": i.title,
@@ -115,11 +118,63 @@ def findNearbyRestaurants(userLatitude, userLongitude, leeway = 0.02):
 			"rating": i.rating_overall,
 			"reviewCount": i.review_count,
 			"latitude": i.latitude,
-			"longitude": i.longitude
+			"longitude": i.longitude,
+			"ratingReviewCountIndex": calcRatingReviewCountIndex(i.rating_overall, i.review_count)
 		})
 
-	results = multikeysort(results, ['-rating', '-reviewCount'])[0:15]
+	results = multikeysort(results, ['-ratingReviewCountIndex'])[0:15]
 	return results
+
+def findRestaurantsAlongRoute(route, leeway):
+	route = eval(route)
+	leeway = float(leeway)
+
+	leewaySquared = leeway ** 2
+
+	leftMostLongitude = 105.0
+	rightMostLongitude = 103.0
+
+	for i in route:
+		if i[1] < leftMostLongitude:
+			leftMostLongitude = i[1]
+		if i[1] > rightMostLongitude:
+			rightMostLongitude = i[1]
+	
+	query = db.GqlQuery(
+		"""SELECT title, address, rating_overall, review_count, latitude, longitude FROM Restaurant
+		WHERE longitude >= %f AND longitude <= %f"""
+		% (leftMostLongitude - leeway, rightMostLongitude + leeway)
+	)
+
+	results = []
+	for i in query:
+		restaurantWithinRange = False
+		for j in route:
+			if ((j[0] - i.latitude) ** 2 + (j[1] - i.longitude) ** 2) <= leewaySquared:
+				restaurantWithinRange = True
+				break
+
+		if restaurantWithinRange:
+			results.append({
+				"title": i.title,
+				"address": i.address,
+				"rating": i.rating_overall,
+				"reviewCount": i.review_count,
+				"latitude": i.latitude,
+				"longitude": i.longitude,
+				"ratingReviewCountIndex": calcRatingReviewCountIndex(i.rating_overall, i.review_count)
+			})
+
+	results = multikeysort(results, ['-ratingReviewCountIndex'])[0:15]
+	return results
+
+# this index calculator is a bit crude, could be improved.
+def calcRatingReviewCountIndex(rating, reviewCount):
+	if reviewCount >= 25:
+		return rating * 1.1
+	if reviewCount >= 10:
+		return rating * (1 + (reviewCount / 250.0))
+	return rating * (reviewCount / 10.0)
 
 # use it like multikeysort(b, ['-COL_A', 'COL_B'])
 def multikeysort(items, columns):
@@ -134,3 +189,9 @@ def multikeysort(items, columns):
             return 0
     return sorted(items, cmp=comparer)
 
+
+def d(*v):
+	output = ""
+	for i in v:
+		output += str(i) + "::"
+	logging.warning(output)
