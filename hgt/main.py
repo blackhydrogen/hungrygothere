@@ -169,12 +169,22 @@ def findRestaurantsAlongRoute(route, leeway):
 	return results
 
 # this index calculator is a bit crude, could be improved.
+# basic idea: (can be changed)
+# low reviewCount + low rating = very low index
+# low reviewCount + normal rating = low index
+# low reviewCount + high rating = low-to-normal index
+# normal reviewCount + low rating = low-to-normal index
+# normal reviewCount + normal rating = normal index
+# normal reviewCount + high rating = normal-to-high index
+# high reviewCount + low rating = low index
+# high reviewCount + normal rating = normal-to-high index 
+# high reviewCount + high rating = very high index
 def calcRatingReviewCountIndex(rating, reviewCount):
 	if reviewCount >= 25:
 		return rating * 1.1
-	if reviewCount >= 10:
+	if reviewCount >= 8:
 		return rating * (1 + (reviewCount / 250.0))
-	return rating * (reviewCount / 10.0)
+	return rating * (reviewCount / 8.0)
 
 # use it like multikeysort(b, ['-COL_A', 'COL_B'])
 def multikeysort(items, columns):
