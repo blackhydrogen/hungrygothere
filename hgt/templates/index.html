@@ -127,5 +127,18 @@
         </div>
         <!--end map area -->
 
+        <!--start error/alert/overlay box-->
+        <!--css is hackish. shld go into the .css file. plus we could change the colours a bit -->
+        <div id="overlay_background" style="display: none; background: black; opacity:0.5; width: 100%; height: 100%; z-index: 1000000000; position: absolute; left: 0px; top: 0px">
+            <!-- empty because you dont want the elements inside to have opacity=0.5 too -->
+        </div>
+        <!-- we use a table with a single cell instead of div because vertical-align doesn't work with DIV -->
+        <table id="overlay_items" style="display: none; border: none; height: 100%; width: 100%; z-index:1000000001; position: absolute; left: 0px; top: 0px">
+            <tr><td style="text-align: center; vertical-align: middle">
+                <div id="overlay_content" style="padding: 20px; background: #222222">Loading</div>
+            </td></tr>
+        <table>
+        <!--end error/alert/overlay box-->
+
     </body>
 </html>

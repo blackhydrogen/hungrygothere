@@ -58,6 +58,9 @@ hgtui.hideall = function() {
 	page1.style.display = 'none';
 	wherecaneat.style.display = 'none';
 	halfwayeatwhere.style.display = 'none';
+
+	document.getElementById("overlay_background").style.display = "none";
+	document.getElementById("overlay_items").style.display = "none";
 }
 
 hgtui.showPage1 = function() {
@@ -160,14 +163,27 @@ hgtui.setWalk = function() {
 }
 
 hgtui.showLoadingScreen = function() {
-
+	document.getElementById("overlay_content").innerHTML = "Loading...";
+	hgtui.showOverlays();
 }
 
 hgtui.hideLoadingScreen = function() {
+	hgtui.hideOverlays();
+}
 
+hgtui.showOverlays = function() {
+	document.getElementById("overlay_background").style.display = ""; //not "block", "" is correct
+	document.getElementById("overlay_items").style.display = ""; //not "block", "" is correct
+}
+
+hgtui.hideOverlays = function() {
+	document.getElementById("overlay_background").style.display = "none";
+	document.getElementById("overlay_items").style.display = "none";
 }
 
 hgtui.inform = function(msg) {
-	//we may want to replace this alert with a nicer looking feature (overlaying DIV for example)
-	alert(msg);
+	msg += "<br><input type='button' value='Okay' onclick='hgtui.hideOverlays()'>";
+	document.getElementById("overlay_content").innerHTML = msg;
+	hgtui.showOverlays();
+	//alert(msg);
 }
