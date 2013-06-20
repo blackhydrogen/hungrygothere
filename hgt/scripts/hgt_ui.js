@@ -24,6 +24,16 @@ hgtui.reset_fields = function() {
 	currlocinput.value = '';
 }
 
+
+hgtui.loadlist = function() {
+	listcanvas = document.getElementById('list-canvas');
+	var addhtml = "";   
+	for (var i = 0; i < hgt.restaurants.length; i++) {
+		addhtml += '<tr><td><table id="innerList"><tr><th id="listTitle"><h1 class="title2">' + hgt.restaurants[i].title + '</h1></th></tr><tr><th id="listRating">Rating:' + hgt.restaurants[i].rating + '</th></tr></table><hr></td></tr>';
+	}
+	listcanvas.innerHTML= addhtml;
+}
+
 //Navigation Buttons
 hgtui.show_maps = function() {
 	//hide main portion and display map
@@ -32,21 +42,60 @@ hgtui.show_maps = function() {
 	document.documentElement.style.cssText = "height: 100%";
 
 	var wholething = document.getElementById('wholething');
-	var mapview = document.getElementById('mapview');
 	wholething.style.display = 'none';
+	var mapview = document.getElementById('mapview');
 	mapview.style.display = 'block';
 	g.initialize();
+}
+
+hgtui.toggle_map = function() {
+	//hide main portion and display map
+	
+	document.body.style.cssText = "padding-top:0px; padding-bottom:0px";
+	document.documentElement.style.cssText = "height: 100%";
+
+
+	var listview = document.getElementById('listview');
+	listview.style.display = 'none';
+	var mapview = document.getElementById('mapview');
+	mapview.style.display = 'block';
+}
+
+hgtui.toggle_list = function() {
+	//hide main portion and display list
+	
+	document.body.style.cssText = "padding-top:0px; padding-bottom:0px";
+	document.documentElement.style.cssText = "height: 100%";
+
+	hgtui.loadlist();
+
+	var mapview = document.getElementById('mapview');
+	mapview.style.display = 'none';
+	var listview = document.getElementById('listview');
+	listview.style.display = 'block';
 }
 
 hgtui.off_maps = function() {
 	document.body.style.cssText = "";
 	document.documentElement.style.cssText = "";
 
-	var wholething = document.getElementById('wholething');
 	var mapview = document.getElementById('mapview');
 	mapview.style.display = 'none';
+	var wholething = document.getElementById('wholething');
 	wholething.style.display = 'block';
 }
+
+hgtui.off_list = function() {
+	document.body.style.cssText = "";
+	document.documentElement.style.cssText = "";
+
+
+	var listview = document.getElementById('listview');
+	listview.style.display = 'none';	
+	var wholething = document.getElementById('wholething');
+	wholething.style.display = 'block';
+}
+
 
 hgtui.hideall = function() {
 	document.body.style.cssText = "";
@@ -55,9 +104,13 @@ hgtui.hideall = function() {
 	var page1 = document.getElementById('page1');
 	var wherecaneat = document.getElementById('wherecaneat');
 	var halfwayeatwhere = document.getElementById('halfwayeatwhere');
+	var mapview = document.getElementById('mapview');
+	var listview = document.getElementById('listview');
 	page1.style.display = 'none';
 	wherecaneat.style.display = 'none';
 	halfwayeatwhere.style.display = 'none';
+	mapview.style.display = 'none';
+	listview.style.display = 'none';
 
 	document.getElementById("overlay_background").style.display = "none";
 	document.getElementById("overlay_items").style.display = "none";

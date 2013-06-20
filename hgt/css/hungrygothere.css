@@ -105,7 +105,7 @@ h1.title2 {
   float: right;
 }
 
-#wherecaneat, #halfwayeatwhere, #mapview {
+#wherecaneat, #halfwayeatwhere, #mapview, #listview {
   display: none;
 }
 
@@ -123,9 +123,11 @@ h1.title2 {
   height: 100%;
   background-color: #FFFFFF;
 }
+
 #map-canvas img {
   max-width: none;
 }
+
 
 body {
   background-color: #9b200a;
@@ -144,6 +146,33 @@ body {
     width:100%;
     z-index: 10;
 }
+
+#buttonsonlist {
+    position: fixed;
+    left:0;
+    bottom:0;
+    width:100%;
+    z-index: 10;
+} 
+
+#list-canvas {
+  width: 100%;
+} 
+
+#innerList{
+  width: 100%;
+} 
+
+#listTitle {
+  text-align: left;
+} 
+
+#listRating{
+  font-size: 16px;
+  text-align: left;
+  color: gray;
+  padding-bottom: 10px;
+} 
 
 @media (min-width: 980px) {
   body {
@@ -213,7 +242,11 @@ body {
 
 
   #buttonsonmap {
-      margin-bottom: 30px;
+    margin-bottom: 30px;
+  }
+
+  #buttonsonlist {
+    margin-bottom: 30px;
   }
 
   #map-canvas {
@@ -221,4 +254,12 @@ body {
     height: 80%;
     background-color: #FFFFFF;
   }
+
+  #list-canvas {
+    width: 70%;
+  } 
+
+  #listRating{
+    font-size: 30px;
+  } 
 }

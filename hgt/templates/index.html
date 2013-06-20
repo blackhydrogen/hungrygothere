@@ -120,12 +120,27 @@
                 <div id="buttonsonmap" class align="center">
                     <div class="container">
                         <button class="btn btn-warning mininav mininavleft" onclick="hgtui.off_maps();">Back!</button>
-                        <button class="btn btn-warning mininav mininavright" onclick="hgtui.off_maps();">List View</button>
+                        <button class="btn btn-warning mininav mininavright" onclick="hgtui.toggle_list();">List View</button>
                     </div>
                 </div>
             </div>
         </div>
         <!--end map area -->
+
+        <!--start listview -->
+        <div id="listview">
+            <div class="container">
+                <div class="placeholder"></div>
+                <table id="list-canvas" align="center"></table>
+                <div id="buttonsonlist" class align="center">
+                    <div class="container">
+                        <button class="btn btn-warning mininav mininavleft" onclick="hgtui.off_list();">Back!</button>
+                        <button class="btn btn-warning mininav mininavright" onclick="hgtui.toggle_map();">Map View</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--end listview -->
 
         <!--start error/alert/overlay box-->
         <!--css is hackish. shld go into the .css file. plus we could change the colours a bit -->
