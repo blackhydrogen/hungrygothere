@@ -33,7 +33,9 @@ hgtui.loadlist = function() {
 	listcanvas = document.getElementById('list-canvas');
 	var addhtml = "";   
 	for (var i = 0; i < hgt.restaurants.length; i++) {
-		addhtml += '<tr><td><table id="innerList"><tr><th id="listTitle"><h1 class="title2">' + hgt.restaurants[i].title + '</h1></th></tr><tr><th id="listRating">Rating:' + hgt.restaurants[i].rating + '</th></tr></table><hr></td></tr>';
+		addhtml += '<tr><td><table id="innerList"><tr><th id="listTitle">';
+		addhtml += '<a class="nodeco" href="#" onclick="hgtui.restdetails(' + i +')">';
+		addhtml += '<h1 class="listviewtitle">' + hgt.restaurants[i].title + '</h1></a></td></tr><tr><th id="listRating">Rating:' + hgt.restaurants[i].rating + '</th></tr></table><hr></td></tr>';
 	}
 	listcanvas.innerHTML= addhtml;
 }
@@ -69,10 +71,10 @@ hgtui.show_geolist = function(resultsList, functionToCallOnClick) {
 	hgtui.geolist_resultList = resultsList;
 	hgtui.geolist_functionToCall = functionToCallOnClick;
 
-	var addhtml = "";   
+	var addhtml = "<hr>";   
 	for (var i = 0; i < resultsList.length; i++) {
 		addhtml += '<tr><td>';
-		addhtml += '<h1 class="title2"><a href="#" onclick="hgtui.geolist_entryClick(' + i + ')">' + resultsList[i].formatted_address + '</a></h1>';
+		addhtml += '<h1 class="listviewtitle"><a href="#" class="nodeco" onclick="hgtui.geolist_entryClick(' + i + ')">' + resultsList[i].formatted_address + '</a></h1><hr>';
 		addhtml += '</td></tr>';
 	}
 	document.getElementById('geolist-canvas').innerHTML= addhtml;
@@ -141,7 +143,7 @@ hgtui.toggle_list = function() {
 	var listview = document.getElementById('listview');
 	listview.style.display = 'block';
 
-	document.getElementById("mapViewButton").style.display = "";
+	//document.getElementById("mapViewButton").style.display = "";
 }
 
 hgtui.off_maps = function() {
@@ -163,6 +165,23 @@ hgtui.off_list = function() {
 	listview.style.display = 'none';	
 	var wholething = document.getElementById('wholething');
 	wholething.style.display = 'block';
+}
+
+hgtui.restdetails = function(index) {
+	document.getElementById('maplistarea').style.display = 'none';
+	document.getElementById('restdetails').style.display = 'block';
+	var addhtml = "";
+	addhtml += '<tr><td><h1 class="listviewtitle">' + hgt.restaurants[index].title + '</h1><hr></td></tr>';
+	addhtml += '<tr><td id="listAddress">' + hgt.restaurants[index].address + '</td></tr><tr><td class="placeholder3"></td></tr>';
+	addhtml += '<tr><th id="listRating">Rating:' + hgt.restaurants[index].rating + '</th></tr>';
+	//addhtml = '<tr><td><h1 class="listviewtitle">' + hgt.restaurants[index].title + '</h1></td></tr>';
+	//addhtml = '<tr><td><h1 class="listviewtitle">' + hgt.restaurants[index].title + '</h1></td></tr>';
+	document.getElementById('rest-details-canvas').innerHTML=addhtml;
+}
+
+hgtui.offrestdetails = function() {
+	document.getElementById('restdetails').style.display = 'none';
+	document.getElementById('maplistarea').style.display = 'block';
 }
 
 

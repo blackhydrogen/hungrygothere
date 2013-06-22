@@ -110,10 +110,46 @@
                 </div>
             </div>
             <!--End Halfway Eat Where area -->
+        </div>
 
-            <!--start list for multiple results (geolist)-->
-            <div class="container" id="geolist">
+        <div id="maplistarea">
+            <!--start map area -->
+            <div id="mapview">
+                <div class="container">
+                    <div class="placeholder2"></div>
+                    <div id="map-canvas"></div>
+                    <div id="buttonsonmap" class align="center">
+                        <div class="container">
+                            <button class="btn btn-warning mininav mininavleft" onclick="hgtui.off_maps();">Back!</button>
+                            <button class="btn btn-warning mininav mininavright" onclick="hgtui.toggle_list();">List View</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!--end map area -->
+
+            <!--start listview -->
+            <div id="listview">
+                <div class="container">
+                    <div class="placeholder"></div>
+                    <table id="list-canvas" align="center"></table>
+                    <div id="buttonsonlist" class align="center">
+                        <div class="container">
+                            <button class="btn btn-warning mininav mininavleft" onclick="hgtui.off_list();">Back!</button>
+                            <button class="btn btn-warning mininav mininavright" onclick="hgtui.toggle_map();">Map View</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!--end listview -->
+        </div>
+
+
+        <!--start list for multiple results (geolist)-->
+        <div  id="geolist">
+            <div class="container">
                 <!--<div class="placeholder"></div>-->
+                <div align="center"><h1 class="title1">Did you mean...</h1></div>
                 <table id="geolist-canvas" align="center"></table>
                 <div id="buttonsongeolist" class align="center">
                     <div class="container">
@@ -122,38 +158,24 @@
                     </div>
                 </div>
             </div>
-            <!--end listview for multiple results (geo_listview)-->
         </div>
+        <!--end listview for multiple results (geo_listview)-->
 
-        <!--start map area -->
-        <div id="mapview">
-            <div class="container">
-                <div class="placeholder2"></div>
-                <div id="map-canvas"></div>
-                <div id="buttonsonmap" class align="center">
-                    <div class="container">
-                        <button class="btn btn-warning mininav mininavleft" onclick="hgtui.off_maps();">Back!</button>
-                        <button class="btn btn-warning mininav mininavright" onclick="hgtui.toggle_list();">List View</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <!--end map area -->
 
-        <!--start listview -->
-        <div id="listview">
+        <!--start Restaurant Details Page-->
+        <div  id="restdetails">
             <div class="container">
                 <div class="placeholder"></div>
-                <table id="list-canvas" align="center"></table>
-                <div id="buttonsonlist" class align="center">
+                <table id="rest-details-canvas" align="center"></table>
+                <div id="buttonsonrestdetails" class align="center">
                     <div class="container">
-                        <button class="btn btn-warning mininav mininavleft" onclick="hgtui.off_list();">Back!</button>
-                        <button class="btn btn-warning mininav mininavright" onclick="hgtui.toggle_map();">Map View</button>
+                        <button class="btn btn-warning mininav mininavleft" onclick="hgtui.offrestdetails();">Back!</button>
+                        <!--<button class="btn btn-warning mininav mininavright" onclick="hgtui.toggle_map();"></button>-->
                     </div>
                 </div>
             </div>
         </div>
-        <!--end listview -->
+        <!--end Restaurant Details Page-->
 
         <!--start error/alert/overlay box-->
         <!--css is hackish. shld go into the .css file. plus we could change the colours a bit -->

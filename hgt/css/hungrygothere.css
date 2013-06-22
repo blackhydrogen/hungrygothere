@@ -59,6 +59,21 @@ h1.title2 {
   line-height:normal;
 } 
 
+h1.listviewtitle {
+  font-size: 25px;
+} 
+
+td,th {
+  vertical-align: middle;
+  border: 1px;
+}
+
+a.nodeco,
+a.nodeco:hover {
+  font-style: none;
+  color: white;
+}
+
 .fillparent {
   width:90%;
 }
@@ -105,7 +120,7 @@ h1.title2 {
   float: right;
 }
 
-#wherecaneat, #halfwayeatwhere, #mapview, #listview, #geolist {
+#wherecaneat, #halfwayeatwhere, #mapview, #listview, #geolist, #restdetails {
   display: none;
 }
 
@@ -147,7 +162,7 @@ body {
     z-index: 10;
 }
 
-#buttonsonlist {
+#buttonsonlist, #buttonsongeolist, #buttonsonrestdetails {
     position: fixed;
     left:0;
     bottom:0;
@@ -155,7 +170,7 @@ body {
     z-index: 10;
 } 
 
-#list-canvas {
+#list-canvas, #geolist-canvas, #rest-details-canvas {
   width: 100%;
 } 
 
@@ -168,10 +183,16 @@ body {
 } 
 
 #listRating{
-  font-size: 16px;
+  font-size: 15px;
   text-align: left;
   color: gray;
-  padding-bottom: 10px;
+} 
+
+#listAddress{
+  font-size: 15px;
+  text-align: left;
+  color: white;
+  font-style: italic;
 } 
 
 @media (min-width: 980px) {
@@ -188,6 +209,11 @@ body {
   font-size: 50px;
   } 
 
+
+  h1.listviewtitle {
+    font-size: 40px;
+    line-height:normal;
+  } 
 
   .btn-xlarge {
     padding: 18px 28px;
@@ -224,6 +250,10 @@ body {
     padding:27px;
   }
 
+  .placeholder3 {
+    padding:5px;
+  }
+
   #currlocation, #currlocation1, #dummy, #destination {
     height: 40px;
     font-size: 25px;
@@ -245,7 +275,7 @@ body {
     margin-bottom: 30px;
   }
 
-  #buttonsonlist {
+  #buttonsonlist, #buttonsongeolist, #buttonsonrestdetails {
     margin-bottom: 30px;
   }
 
@@ -255,11 +285,15 @@ body {
     background-color: #FFFFFF;
   }
 
-  #list-canvas {
+  #list-canvas, #geolist-canvas, #rest-details-canvas {
     width: 70%;
   } 
 
   #listRating{
-    font-size: 30px;
+    font-size: 20px;
+  } 
+
+  #listAddress{
+    font-size: 20px;
   } 
 }
