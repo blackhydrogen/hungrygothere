@@ -105,7 +105,7 @@ h1.title2 {
   float: right;
 }
 
-#wherecaneat, #halfwayeatwhere, #mapview, #listview {
+#wherecaneat, #halfwayeatwhere, #mapview, #listview, #geolist {
   display: none;
 }
 

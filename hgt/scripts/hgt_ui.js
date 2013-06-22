@@ -8,6 +8,10 @@
 var hgtui = new Object();
 hgtui.currlocation_previousValue = "";
 hgtui.currlocation1_previousValue = "";
+hgtui.lastViewed = "wherecaneat";
+hgtui.geolist_resultList = null;
+hgtui.geolist_functionToCall = null;
+hgtui.geolist_queue = [];
 
 hgtui.reset_fields = function() {
 	var currlocinput = document.getElementById('currlocation');
@@ -48,6 +52,69 @@ hgtui.show_maps = function() {
 	g.initialize();
 }
 
+hgtui.show_geolist = function(resultsList, functionToCallOnClick) {
+	d("executing geolist")
+	if(hgtui.geolist_queue.length != 0) { //means there's a current geolist showing, so queue this new call
+		d("queuing next geolist")
+		hgtui.geolist_queue.push(hgtui.show_geolist.partial(resultsList, functionToCallOnClick));
+		return;
+	}
+	else {
+		d("continuing geolist")
+		hgtui.geolist_queue.push("geolist_showing"); //just a placeholder to say there's a geolist currently showing
+	}
+	d("geolist on...")
+	hgtui.hideLoadingScreen();
+
+	hgtui.geolist_resultList = resultsList;
+	hgtui.geolist_functionToCall = functionToCallOnClick;
+
+	var addhtml = "";   
+	for (var i = 0; i < resultsList.length; i++) {
+		addhtml += '<tr><td>';
+		addhtml += '<h1 class="title2"><a href="#" onclick="hgtui.geolist_entryClick(' + i + ')">' + resultsList[i].formatted_address + '</a></h1>';
+		addhtml += '</td></tr>';
+	}
+	document.getElementById('geolist-canvas').innerHTML= addhtml;
+
+	hgtui.hideall();
+	document.getElementById('geolist').style.display = "block";
+}
+
+hgtui.geolist_entryClick = function(index) {
+	//should change the user entered value also - not impt, omittable
+	//the two functions called in the if-else will call hgtui.hideall(), so hgtui.hide_geolist() not necessary
+	if(hgtui.lastViewed == "wherecaneat") {
+		hgtui.showWhereCanEat();
+	}
+	else {
+		hgtui.showHalfwayEatWhere();
+	}
+	hgtui.showLoadingScreen();
+
+	hgtui.geolist_functionToCall(hgtui.geolist_resultList[index].geometry.location.lat(), hgtui.geolist_resultList[index].geometry.location.lng());
+
+	hgtui.geolist_queue.shift();
+	if(hgtui.geolist_queue.length != 0) { //there's something in the queue
+		hgtui.geolist_queue.shift()(); //remove the first element, which (the first element) is a function, then call that function
+	}
+}
+
+hgtui.hide_geolist = function() {
+	document.getElementById('geolist').style.display = "none";
+}
+
+hgtui.geolist_cancel = function() {
+	hgtui.geolist_queue = []; //empty queue
+	hgtui.hide_geolist();
+	if(hgtui.lastViewed == "wherecaneat") {
+		hgtui.showWhereCanEat();
+	}
+	else {
+		hgtui.showHalfwayEatWhere();
+	}
+}
+
 hgtui.toggle_map = function() {
 	//hide main portion and display map
 	
@@ -73,6 +140,8 @@ hgtui.toggle_list = function() {
 	mapview.style.display = 'none';
 	var listview = document.getElementById('listview');
 	listview.style.display = 'block';
+
+	document.getElementById("mapViewButton").style.display = "";
 }
 
 hgtui.off_maps = function() {
@@ -106,11 +175,13 @@ hgtui.hideall = function() {
 	var halfwayeatwhere = document.getElementById('halfwayeatwhere');
 	var mapview = document.getElementById('mapview');
 	var listview = document.getElementById('listview');
+	var geolist = document.getElementById('geolist');
 	page1.style.display = 'none';
 	wherecaneat.style.display = 'none';
 	halfwayeatwhere.style.display = 'none';
 	mapview.style.display = 'none';
 	listview.style.display = 'none';
+	geolist.style.display = 'none';
 
 	document.getElementById("overlay_background").style.display = "none";
 	document.getElementById("overlay_items").style.display = "none";
@@ -123,12 +194,14 @@ hgtui.showPage1 = function() {
 }
 
 hgtui.showWhereCanEat = function() {
+	hgtui.lastViewed = "wherecaneat";
 	hgtui.hideall();
 	var wherecaneat = document.getElementById('wherecaneat');
 	wherecaneat.style.display = 'block';
 }
 
 hgtui.showHalfwayEatWhere = function() {
+	hgtui.lastViewed = "halfwayeatwhere"
 	hgtui.hideall();
 	var halfwayeatwhere = document.getElementById('halfwayeatwhere');
 	halfwayeatwhere.style.display = 'block';

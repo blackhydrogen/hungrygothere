@@ -1,4 +1,13 @@
-//================================================IAN'S EDITS START HERE=============
+Function.prototype.partial = function() {
+	var fn = this, args = Array.prototype.slice.call(arguments);
+	return function() {
+		var arg = 0;
+		for ( var i = 0; i < args.length && arg < arguments.length; i++)
+			if ( args[i] === undefined )
+				args[i] = arguments[arg++];
+		return fn.apply(this, args);
+	};
+};
 
 //g object is for all the google maps related stuff
 var g = new Object();
@@ -94,8 +103,7 @@ hgt.getNearbyRestaurantsByNamedLocation = function(namedLocation, leeway) {
 					hgt.getNearbyRestaurantsByLatLon(results[0].geometry.location.lat(), results[0].geometry.location.lng(), leeway)
 				}
 				else {
-					alert("too many results!")
-					//list the results
+					hgtui.show_geolist(results, hgt.getNearbyRestaurantsByLatLon.partial(undefined, undefined, leeway));
 				}
 			}
 			else {
@@ -181,8 +189,7 @@ hgt.getRestaurantsAlongRoute = function(startLocation, endLocation) {
 						hgt.getRestaurantsAlongRoute_setStartCoordinates(callId, results[0].geometry.location.lat(), results[0].geometry.location.lng())
 					}
 					else {
-						alert("too many results!")
-						//list the results
+						hgtui.show_geolist(results, hgt.getRestaurantsAlongRoute_setStartCoordinates.partial(callId, undefined, undefined));
 					}
 				}
 				else {
@@ -212,8 +219,7 @@ hgt.getRestaurantsAlongRoute = function(startLocation, endLocation) {
 					hgt.getRestaurantsAlongRoute_setEndCoordinates(callId, results[0].geometry.location.lat(), results[0].geometry.location.lng())
 				}
 				else {
-					alert("too many results!")
-					//list the results
+					hgtui.show_geolist(results, hgt.getRestaurantsAlongRoute_setEndCoordinates.partial(callId, undefined, undefined));
 				}
 			}
 			else {
