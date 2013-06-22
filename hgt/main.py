@@ -122,8 +122,8 @@ def findNearbyRestaurants(userLatitude, userLongitude, leeway = 0.02):
 			"ratingReviewCountIndex": calcRatingReviewCountIndex(i.rating_overall, i.review_count)
 		})
 
-	results = multikeysort(results, ['-ratingReviewCountIndex'])[0:15]
-	return results
+	#results = multikeysort(results, ['-ratingReviewCountIndex'])[0:15]
+	return filterAndSortResults(results)
 
 def findRestaurantsAlongRoute(route, leeway):
 	route = eval(route)
@@ -165,8 +165,22 @@ def findRestaurantsAlongRoute(route, leeway):
 				"ratingReviewCountIndex": calcRatingReviewCountIndex(i.rating_overall, i.review_count)
 			})
 
-	results = multikeysort(results, ['-ratingReviewCountIndex'])[0:15]
-	return results
+	#results = multikeysort(results, ['-ratingReviewCountIndex'])[0:15]
+	return filterAndSortResults(results)
+
+def filterAndSortResults(results):
+	results = multikeysort(results, ['-ratingReviewCountIndex'])
+	returnValue = [];
+	for i in range(1, len(results)):
+		addToReturnValue = True
+		for j in range(0, i):
+			if(results[i]["longitude"] == results[j]["longitude"] and results[i]["latitude"] == results[j]["latitude"]):
+				addToReturnValue = False
+				break
+		if addToReturnValue:
+			returnValue.append(results[i]);
+	return returnValue[0:15]
+
 
 # this index calculator is a bit crude, could be improved.
 # basic idea: (can be changed)
