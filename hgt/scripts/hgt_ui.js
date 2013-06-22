@@ -173,9 +173,11 @@ hgtui.restdetails = function(index) {
 	var addhtml = "";
 	addhtml += '<tr><td><h1 class="listviewtitle">' + hgt.restaurants[index].title + '</h1><hr></td></tr>';
 	addhtml += '<tr><td id="listAddress">' + hgt.restaurants[index].address + '</td></tr><tr><td class="placeholder3"></td></tr>';
-	addhtml += '<tr><th id="listRating">Rating:' + hgt.restaurants[index].rating + '</th></tr>';
-	//addhtml = '<tr><td><h1 class="listviewtitle">' + hgt.restaurants[index].title + '</h1></td></tr>';
-	//addhtml = '<tr><td><h1 class="listviewtitle">' + hgt.restaurants[index].title + '</h1></td></tr>';
+	addhtml += '<tr><td id="list">' + hgt.restaurants[index].contact + '</td></tr><tr><td class="placeholder3"></td></tr>';
+	addhtml += '<tr><th id="list">Queue How Long: ' + hgt.restaurants[index].waitingtime_queuing + ' min<br />Wait How Long: ' + hgt.restaurants[index].waitingtime_serving + ' min<hr></th></tr><tr><td class="placeholder3"></td></tr>';
+	addhtml += '<tr><th id="listRating">Overall Rating: ' + hgt.restaurants[index].rating + '</th></tr><tr><td class="placeholder3"></td></tr>';
+	addhtml += '<tr><td id="list"><ul><li>Ambience: ' + hgt.restaurants[index].rating + '</li><li>Food: ' + hgt.restaurants[index].rating_food + '</li><li>Service: ' + hgt.restaurants[index].rating_service + '</li><li>Value: ' + hgt.restaurants[index].rating_value + '</li></td></tr><tr><td class="placeholder3"></td></tr>';
+	addhtml += '<tr><th id="listURL"><a target="_blank" href="' + hgt.restaurants[index].url + '#moreReview" class="nodeco">Click here to read reviews!</a></td></tr><tr><td class="placeholder3"></th></tr>';
 	document.getElementById('rest-details-canvas').innerHTML=addhtml;
 }
 

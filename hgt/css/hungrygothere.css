@@ -41,20 +41,21 @@
 
 
 .btn-xlarge {
-  padding: 18px 28px;
-  font-size: 20px;
+  padding: 18px 20px;
+  font-size: 18px;
   line-height: normal;
   -webkit-border-radius: 8px;
      -moz-border-radius: 8px;
           border-radius: 8px;
 }
 
-h1.title1 {
-  font-size: 35px;
-  line-height:normal;
-} 
+.btn-large {
+  padding: 10px 0px;
+  font-size: 15px;
+  font-weight: bold;
+}
 
-h1.title2 {
+h1.title1, h1.title2 {
   font-size: 25px;
   line-height:normal;
 } 
@@ -185,7 +186,13 @@ body {
 #listRating{
   font-size: 15px;
   text-align: left;
-  color: gray;
+  color: #fbb450;
+} 
+
+#list{
+  font-size: 13px;
+  text-align: left;
+  color: white;
 } 
 
 #listAddress{
@@ -194,6 +201,13 @@ body {
   color: white;
   font-style: italic;
 } 
+
+#listURL{
+  font-size: 15px;
+  text-align: center;
+  color: white;
+} 
+
 
 @media (min-width: 980px) {
   body {
@@ -295,5 +309,13 @@ body {
 
   #listAddress{
     font-size: 20px;
+  } 
+
+  #list{
+    font-size: 15px;
+  } 
+
+  #listURL{
+  font-size: 20px;
   } 
 }
