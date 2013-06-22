@@ -101,7 +101,7 @@ def findNearbyRestaurants(userLatitude, userLongitude, leeway = 0.02):
 	leewaySquared = leeway ** 2
 
 	query = db.GqlQuery(
-		"""SELECT title, address, rating_overall, review_count, latitude, longitude FROM Restaurant
+		"""SELECT title, address, contact, rating_overall, rating_food, rating_ambience, rating_value, rating_service, review_count, latitude, longitude, url FROM Restaurant
 		WHERE longitude >= %f AND longitude <= %f"""
 		% (userLongitude - leeway, userLongitude + leeway)
 	)
@@ -115,15 +115,23 @@ def findNearbyRestaurants(userLatitude, userLongitude, leeway = 0.02):
 		results.append({
 			"title": i.title,
 			"address": i.address,
+			"contact": i.contact,
 			"rating": i.rating_overall,
+			"rating_food": i.rating_food,
+			"rating_ambience": i.rating_ambience,
+			"rating_value": i.rating_value,
+			"rating_service": i.rating_service,
 			"reviewCount": i.review_count,
 			"latitude": i.latitude,
 			"longitude": i.longitude,
+			"waitingtime_serving": 10,
+			"waitingtime_queuing": 10,
+			"url": i.url,
 			"ratingReviewCountIndex": calcRatingReviewCountIndex(i.rating_overall, i.review_count)
 		})
 
-	results = multikeysort(results, ['-ratingReviewCountIndex'])[0:15]
-	return results
+	#results = multikeysort(results, ['-ratingReviewCountIndex'])[0:15]
+	return filterAndSortResults(results)
 
 def findRestaurantsAlongRoute(route, leeway):
 	route = eval(route)
@@ -158,15 +166,37 @@ def findRestaurantsAlongRoute(route, leeway):
 			results.append({
 				"title": i.title,
 				"address": i.address,
+				"contact": i.contact,
 				"rating": i.rating_overall,
+				"rating_food": i.rating_food,
+				"rating_ambience": i.rating_ambience,
+				"rating_value": i.rating_value,
+				"rating_service": i.rating_service,
 				"reviewCount": i.review_count,
 				"latitude": i.latitude,
 				"longitude": i.longitude,
+				"waitingtime_serving": 10,
+				"waitingtime_queuing": 10,
+				"url": i.url,
 				"ratingReviewCountIndex": calcRatingReviewCountIndex(i.rating_overall, i.review_count)
 			})
 
-	results = multikeysort(results, ['-ratingReviewCountIndex'])[0:15]
-	return results
+	#results = multikeysort(results, ['-ratingReviewCountIndex'])[0:15]
+	return filterAndSortResults(results)
+
+def filterAndSortResults(results):
+	results = multikeysort(results, ['-ratingReviewCountIndex'])
+	returnValue = [];
+	for i in range(1, len(results)):
+		addToReturnValue = True
+		for j in range(0, i):
+			if(results[i]["longitude"] == results[j]["longitude"] and results[i]["latitude"] == results[j]["latitude"]):
+				addToReturnValue = False
+				break
+		if addToReturnValue:
+			returnValue.append(results[i]);
+	return returnValue[0:15]
+
 
 # this index calculator is a bit crude, could be improved.
 # basic idea: (can be changed)

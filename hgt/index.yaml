@@ -14,6 +14,21 @@ indexes:
   properties:
   - name: longitude
   - name: address
+  - name: contact
+  - name: latitude
+  - name: rating_ambience
+  - name: rating_food
+  - name: rating_overall
+  - name: rating_service
+  - name: rating_value
+  - name: review_count
+  - name: title
+  - name: url
+
+- kind: Restaurant
+  properties:
+  - name: longitude
+  - name: address
   - name: latitude
   - name: rating_overall
   - name: review_count
