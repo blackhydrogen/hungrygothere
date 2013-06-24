@@ -17,6 +17,9 @@ g.directionsService = new google.maps.DirectionsService();
 g.directionsRenderer = new google.maps.DirectionsRenderer();
 g.markers = [];
 g.polygons = [];
+g.infoWindow = new google.maps.InfoWindow({
+	content: ""
+})
 g.searchBounds = new google.maps.LatLngBounds(new google.maps.LatLng(1.22, 103.6, false), new google.maps.LatLng(1.472, 104.04, false)); //A box containing singapore; limit our searches to singpore only.
 
 g.initialize = function() {
@@ -45,7 +48,6 @@ hgt.currentLocationAvailable = false;
 hgt.currentLatitude = null;
 hgt.currentLongitude = null;
 hgt.leewayValues = {bus: 0.015, drive: 0.02, walk: 0.005};
-hgt.centreName = "";
 hgt.getRestaurantsAlongRoute_callIdTracker = 0;
 hgt.getRestaurantsAlongRoute_variables = [];
 
@@ -103,7 +105,7 @@ hgt.getNearbyRestaurantsByNamedLocation = function(namedLocation, leeway) {
 					hgt.getNearbyRestaurantsByLatLon(results[0].geometry.location.lat(), results[0].geometry.location.lng(), leeway)
 				}
 				else {
-					hgtui.show_geolist(results, hgt.getNearbyRestaurantsByLatLon.partial(undefined, undefined, leeway));
+					hgtui.show_geolist(results, hgt.getNearbyRestaurantsByLatLon.partial(undefined, undefined, leeway), "currlocation");
 				}
 			}
 			else {
@@ -142,7 +144,7 @@ hgt.getNearbyRestaurantsByLatLon = function(latitude, longitude, leeway) {
 			hgtui.show_maps();
 			hgt.clearMap();
 
-			hgt.markBoundarySquare(latitude, longitude, leeway); //for debug only - to remove in production
+			//hgt.markBoundarySquare(latitude, longitude, leeway); //for debug only - to remove in production
 			
 			g.map.fitBounds(new google.maps.LatLngBounds(
 				new google.maps.LatLng(latitude - leeway, longitude - leeway),
@@ -155,21 +157,12 @@ hgt.getNearbyRestaurantsByLatLon = function(latitude, longitude, leeway) {
 					map: g.map,
 					icon: "http://www.google.com/mapfiles/arrow.png",
 					shadow: "http://www.google.com/mapfiles/arrowshadow.png",
-					title: hgt.centreName
+					title: document.getElementById('currlocation').value
 				})
 			);
 
 			hgt.restaurants = data.restaurants;
-			for(var i = 0; i < data.restaurants.length; i++) {
-				g.markers.push(
-					new google.maps.Marker({
-						position: new google.maps.LatLng(data.restaurants[i].latitude, data.restaurants[i].longitude),
-						map: g.map,
-						title: data.restaurants[i].title
-					})
-				)
-			}
-
+			hgtui.populateMapWithRestaurants();
 		},
 		"json"
 	);
@@ -189,7 +182,7 @@ hgt.getRestaurantsAlongRoute = function(startLocation, endLocation) {
 						hgt.getRestaurantsAlongRoute_setStartCoordinates(callId, results[0].geometry.location.lat(), results[0].geometry.location.lng())
 					}
 					else {
-						hgtui.show_geolist(results, hgt.getRestaurantsAlongRoute_setStartCoordinates.partial(callId, undefined, undefined));
+						hgtui.show_geolist(results, hgt.getRestaurantsAlongRoute_setStartCoordinates.partial(callId, undefined, undefined), "currlocation1");
 					}
 				}
 				else {
@@ -219,7 +212,7 @@ hgt.getRestaurantsAlongRoute = function(startLocation, endLocation) {
 					hgt.getRestaurantsAlongRoute_setEndCoordinates(callId, results[0].geometry.location.lat(), results[0].geometry.location.lng())
 				}
 				else {
-					hgtui.show_geolist(results, hgt.getRestaurantsAlongRoute_setEndCoordinates.partial(callId, undefined, undefined));
+					hgtui.show_geolist(results, hgt.getRestaurantsAlongRoute_setEndCoordinates.partial(callId, undefined, undefined), "destination");
 				}
 			}
 			else {
@@ -314,18 +307,20 @@ hgt.getRestaurantsAlongRoute_getRestaurants = function(callId, routesResult) {
 				hgtui.show_maps();
 				hgt.clearMap();
 
+				var startInfoWindowContent = "<span class='infoWindow'>Start Location: "
+				startInfoWindowContent += document.getElementById('currlocation1').value
+				startInfoWindowContent += "<br>(" + routesResult.routes[0].legs[0].start_address + ")</span>"
+				routesResult.routes[0].legs[0].start_address = startInfoWindowContent;
+
+				var endInfoWindowContent = "<span class='infoWindow'>End Location: "
+				endInfoWindowContent += document.getElementById('destination').value
+				endInfoWindowContent += "<br>(" + routesResult.routes[0].legs[routesResult.routes[0].legs.length - 1].end_address + ")</span>"
+				routesResult.routes[0].legs[routesResult.routes[0].legs.length - 1].end_address = endInfoWindowContent;
+
 				g.directionsRenderer.setDirections(routesResult);
 
 				hgt.restaurants = data.restaurants;
-				for(var i = 0; i < data.restaurants.length; i++) {
-					g.markers.push(
-						new google.maps.Marker({
-							position: new google.maps.LatLng(data.restaurants[i].latitude, data.restaurants[i].longitude),
-							map: g.map,
-							title: data.restaurants[i].title
-						})
-					)
-				}
+				hgtui.populateMapWithRestaurants();
 
 				hgt.getRestaurantsAlongRoute_variables[callId].status = "done";
 			},

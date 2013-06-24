@@ -12,6 +12,7 @@ hgtui.lastViewed = "wherecaneat";
 hgtui.geolist_resultList = null;
 hgtui.geolist_functionToCall = null;
 hgtui.geolist_queue = [];
+hgtui.geolist_textboxId = null;
 
 hgtui.reset_fields = function() {
 	var currlocinput = document.getElementById('currlocation');
@@ -54,22 +55,20 @@ hgtui.show_maps = function() {
 	g.initialize();
 }
 
-hgtui.show_geolist = function(resultsList, functionToCallOnClick) {
-	d("executing geolist")
+//textboxId = the html id of the textbox that the user typed the geo-query into
+hgtui.show_geolist = function(resultsList, functionToCallOnClick, textboxId) {
 	if(hgtui.geolist_queue.length != 0) { //means there's a current geolist showing, so queue this new call
-		d("queuing next geolist")
-		hgtui.geolist_queue.push(hgtui.show_geolist.partial(resultsList, functionToCallOnClick));
+		hgtui.geolist_queue.push(hgtui.show_geolist.partial(resultsList, functionToCallOnClick, textboxId));
 		return;
 	}
 	else {
-		d("continuing geolist")
 		hgtui.geolist_queue.push("geolist_showing"); //just a placeholder to say there's a geolist currently showing
 	}
-	d("geolist on...")
 	hgtui.hideLoadingScreen();
 
 	hgtui.geolist_resultList = resultsList;
 	hgtui.geolist_functionToCall = functionToCallOnClick;
+	hgtui.geolist_textboxId = textboxId;
 
 	var addhtml = "<hr>";   
 	for (var i = 0; i < resultsList.length; i++) {
@@ -77,14 +76,17 @@ hgtui.show_geolist = function(resultsList, functionToCallOnClick) {
 		addhtml += '<h1 class="listviewtitle"><a href="#" class="nodeco" onclick="hgtui.geolist_entryClick(' + i + ')">' + resultsList[i].formatted_address + '</a></h1><hr>';
 		addhtml += '</td></tr>';
 	}
-	document.getElementById('geolist-canvas').innerHTML= addhtml;
+	document.getElementById('geolist-canvas').innerHTML = addhtml;
+
+	document.getElementById('geolist-query').innerHTML = document.getElementById(textboxId).value;
 
 	hgtui.hideall();
 	document.getElementById('geolist').style.display = "block";
 }
 
 hgtui.geolist_entryClick = function(index) {
-	//should change the user entered value also - not impt, omittable
+	document.getElementById(hgtui.geolist_textboxId).value = hgtui.geolist_resultList[index].formatted_address;
+
 	//the two functions called in the if-else will call hgtui.hideall(), so hgtui.hide_geolist() not necessary
 	if(hgtui.lastViewed == "wherecaneat") {
 		hgtui.showWhereCanEat();
@@ -234,7 +236,7 @@ hgtui.update_currlocation = function() {
 	if (currlocinput.disabled == false) {
 		hgtui.currlocation_previousValue = currlocinput.value;
 		currlocinput.disabled = true;
-		currlocinput.value = '(' + hgt.currentLatitude +','+ hgt.currentLongitude +')';
+		currlocinput.value = "Current Location"; //'(' + hgt.currentLatitude +','+ hgt.currentLongitude +')';
 	} else {
 		currlocinput.disabled = false;
 		currlocinput.value = hgtui.currlocation_previousValue;
@@ -246,7 +248,7 @@ hgtui.update_currlocation1 = function() {
 	if (currlocinput1.disabled == false) {
 		hgtui.currlocation1_previousValue = currlocinput1.value;
 		currlocinput1.disabled = true;
-		currlocinput1.value = '(' + hgt.currentLatitude +','+ hgt.currentLongitude +')';
+		currlocinput1.value = "Current Location"; //'(' + hgt.currentLatitude +','+ hgt.currentLongitude +')';
 	} else {
 		currlocinput1.disabled = false;
 		currlocinput1.value = hgtui.currlocation1_previousValue;
@@ -265,10 +267,8 @@ hgtui.collect_wherecaneat_info = function() {
 	} else {
 		hgtui.showLoadingScreen();
 		if (currentlocation.disabled == true) {
-			hgt.centreName = "Current Location";
 			hgt.getNearbyRestaurantsByLatLon(hgt.currentLatitude, hgt.currentLongitude, hgt.leewayValues[status.value]);
 		} else {
-			hgt.centreName = currentlocation.value;
 			hgt.getNearbyRestaurantsByNamedLocation(currentlocation.value, hgt.leewayValues[status.value]);
 		}
 	}
@@ -291,6 +291,29 @@ hgtui.collect_halfwayeatwhere_info = function() {
 			hgt.getRestaurantsAlongRoute(currentlocation.value, destination.value);
 			//alert('Searching NAISE Makan Places from ' + currentlocation.value + ' to ' + destination.value);
 		}
+	}
+}
+
+hgtui.markerClick = function(index, markerIndex) {
+	g.infoWindow.setContent(
+		"<span class='infoWindow'><b><u>" + hgt.restaurants[index].title + "</u></b><br>" + 
+		"Rating: " + hgt.restaurants[index].rating + "<br>" +
+		"Address: " + hgt.restaurants[index].address.replace("\n", "<br>") + "<br>" +
+		"<a href='#' onclick='hgtui.restdetails(" + index + ")'>More Information</a></span>"
+	)
+	g.infoWindow.open(g.map, g.markers[markerIndex]);
+}
+
+//adds a marker for each of the restaurants in hgt.restaurants
+hgtui.populateMapWithRestaurants = function() {
+	for(var i = 0; i < hgt.restaurants.length; i++) {
+		var marker = new google.maps.Marker({
+			position: new google.maps.LatLng(hgt.restaurants[i].latitude, hgt.restaurants[i].longitude),
+			map: g.map,
+			title: hgt.restaurants[i].title + " (" + hgt.restaurants[i].rating + ")"
+		});
+		google.maps.event.addListener(marker, 'click', hgtui.markerClick.partial(i, g.markers.length));
+		g.markers.push(marker);
 	}
 }
 
