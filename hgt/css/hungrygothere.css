@@ -121,7 +121,11 @@ a.nodeco:hover {
   float: right;
 }
 
-#wherecaneat, #halfwayeatwhere, #mapview, #listview, #geolist, #restdetails {
+.infoWindow {
+  color: black;
+}
+
+#wherecaneat, #halfwayeatwhere, #mapview, #listview, #geolist, #restdetails, #useCurrentLocationButton, #useCurrentLocationButton1 {
   display: none;
 }
 

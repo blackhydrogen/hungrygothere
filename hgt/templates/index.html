@@ -76,7 +76,7 @@
                             <label><h1 class="title1">Where Are You?</h1></label>
                             <input type="hidden" name="status" id="status" value="" />
                             <input type="text" class="fillparent" id="currlocation" placeholder="Enter your start location!">
-                            <button type="button" onclick="hgtui.update_currlocation();" class="btn btn-warning btn-small" data-toggle="button">Use My Current Location</button>
+                            <button type="button" id="useCurrentLocationButton" onclick="hgtui.update_currlocation();" class="btn btn-warning btn-small" data-toggle="button">Use My Current Location</button>
                             <!--div class="placeholder"></div--><br /><br />
                             <label><h1 class="title1">How You Go?</h1></label>
                             <div class="btn-group" data-toggle="buttons-radio">
@@ -99,7 +99,7 @@
                         <div align="center">
                             <label><h1 class="title1">Where Are You?</h1></label>
                             <input type="text" class="fillparent" id="currlocation1" placeholder="Enter your start location!">
-                            <button type="button" onclick="hgtui.update_currlocation1();" class="btn btn-warning btn-small" data-toggle="button">Use My Current Location</button>
+                            <button type="button" id="useCurrentLocationButton1" onclick="hgtui.update_currlocation1();" class="btn btn-warning btn-small" data-toggle="button">Use My Current Location</button>
                             <div class="placeholder"></div>
                             <label><h1 class="title1">Where To?</h1></label>
                             <input type="text" class="fillparent" id="destination" placeholder="Enter your destination!"><br /><br />
@@ -149,7 +149,10 @@
         <div  id="geolist">
             <div class="container">
                 <!--<div class="placeholder"></div>-->
-                <div align="center"><h1 class="title1">Did you mean...</h1></div>
+                <div align="center">
+                    <h1 class="title1">Did you mean...</h1>
+                    "<span id="geolist-query"></span>" returned multiple results.
+                </div>
                 <table id="geolist-canvas" align="center"></table>
                 <div id="buttonsongeolist" class align="center">
                     <div class="container">
