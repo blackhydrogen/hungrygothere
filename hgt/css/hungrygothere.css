@@ -125,7 +125,7 @@ a.nodeco:hover {
   color: black;
 }
 
-#wherecaneat, #halfwayeatwhere, #mapview, #listview, #geolist, #restdetails {
+#wherecaneat, #halfwayeatwhere, #mapview, #listview, #geolist, #restdetails, #useCurrentLocationButton, #useCurrentLocationButton1 {
   display: none;
 }
 

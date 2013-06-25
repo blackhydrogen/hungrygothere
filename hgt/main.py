@@ -10,6 +10,9 @@ from google.appengine.ext import db
 jinja_environment = jinja2.Environment(
 	loader=jinja2.FileSystemLoader(os.path.dirname(__file__) + "/templates"))
 
+##### Direct File Imports #####
+execfile("admin.py")
+
 ##### Page Handlers #####
 class MainHandler(webapp2.RequestHandler):
 	def get(self):
@@ -68,7 +71,8 @@ app = webapp2.WSGIApplication([
 	("/test", genericTestHandler),
 	("/whereCanEat", whereCanEatHandler),
 	("/getNearbyRestaurants", getNearbyRestaurantsHandler),
-	("/getRestaurantsAlongRoute", getRestaurantsAlongRouteHandler)
+	("/getRestaurantsAlongRoute", getRestaurantsAlongRouteHandler),
+	("/admin", AdminPageHandler)
 ], debug=True)
 
 ##### Models #####
@@ -149,7 +153,7 @@ def findRestaurantsAlongRoute(route, leeway):
 			rightMostLongitude = i[1]
 	
 	query = db.GqlQuery(
-		"""SELECT title, address, rating_overall, review_count, latitude, longitude FROM Restaurant
+		"""SELECT title, address, contact, rating_overall, rating_food, rating_ambience, rating_value, rating_service, review_count, latitude, longitude, url FROM Restaurant
 		WHERE longitude >= %f AND longitude <= %f"""
 		% (leftMostLongitude - leeway, rightMostLongitude + leeway)
 	)
@@ -218,16 +222,16 @@ def calcRatingReviewCountIndex(rating, reviewCount):
 
 # use it like multikeysort(b, ['-COL_A', 'COL_B'])
 def multikeysort(items, columns):
-    from operator import itemgetter
-    comparers = [ ((itemgetter(col[1:].strip()), -1) if col.startswith('-') else (itemgetter(col.strip()), 1)) for col in columns]  
-    def comparer(left, right):
-        for fn, mult in comparers:
-            result = cmp(fn(left), fn(right))
-            if result:
-                return mult * result
-        else:
-            return 0
-    return sorted(items, cmp=comparer)
+	from operator import itemgetter
+	comparers = [ ((itemgetter(col[1:].strip()), -1) if col.startswith('-') else (itemgetter(col.strip()), 1)) for col in columns]  
+	def comparer(left, right):
+		for fn, mult in comparers:
+			result = cmp(fn(left), fn(right))
+			if result:
+				return mult * result
+		else:
+			return 0
+	return sorted(items, cmp=comparer)
 
 
 def d(*v):

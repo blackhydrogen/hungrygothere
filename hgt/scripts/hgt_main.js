@@ -61,7 +61,8 @@ hgt.findCurrentLocation = function() {
 }
 
 hgt.currentLocationFoundSuccess = function(position) {
-	//activate current location button??
+	document.getElementById("useCurrentLocationButton").style.display = "block";
+	document.getElementById("useCurrentLocationButton1").style.display = "block";
 	hgt.currentLocationAvailable = true;
 	hgt.currentLatitude = position.coords.latitude;
 	hgt.currentLongitude = position.coords.longitude;
@@ -69,7 +70,7 @@ hgt.currentLocationFoundSuccess = function(position) {
 
 hgt.currentLocationFoundFailure = function() {
 	//disable current location button??
-	hgt.currentLocationAvailable = false;
+	//hgt.currentLocationAvailable = false;
 }
 
 //obsolete
