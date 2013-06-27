@@ -130,13 +130,17 @@
 
             <!--start listview -->
             <div id="listview">
-                <div class="container">
+                <div class="span7 offset3">
                     <!--div class="placeholder"></div-->
+                    <div align="center">
+                        <br /><h1 class="title1">List of Restaurants</h1>
+                    </div>
+                    <div class="placeholder"></div>
                     <table id="list-canvas" align="center"></table>
                     <div id="buttonsonlist" class align="center">
-                        <div class="container">
-                            <button class="btn btn-warning mininav mininavleft" onclick="hgtui.off_list();">Back!</button>
-                            <button class="btn btn-warning mininav mininavright" onclick="hgtui.toggle_map();">Map View</button>
+                        <div class="span9 offset2">
+                            <button class="btn btn-warning mininav mininavleft" onclick="hgtui.toggle_map();">Back!</button>
+                            <!--button class="btn btn-warning mininav mininavright" onclick="hgtui.toggle_map();">Map View</button-->
                         </div>
                     </div>
                 </div>
@@ -147,15 +151,16 @@
 
         <!--start list for multiple results (geolist)-->
         <div  id="geolist">
-            <div class="container">
+            <div class="span7 offset3">
                 <!--<div class="placeholder"></div>-->
                 <div align="center">
                     <h1 class="title1">Did you mean...</h1>
                     "<span id="geolist-query"></span>" returned multiple results.
                 </div>
+                <div class="placeholder"></div>
                 <table id="geolist-canvas" align="center"></table>
-                <div id="buttonsongeolist" class align="center">
-                    <div class="container">
+                <div id="buttonsongeolist" align="center">
+                    <div class="span9 offset2">
                         <button class="btn btn-warning mininav mininavleft" onclick="hgtui.geolist_cancel();">Cancel</button>
                         <!--<button class="btn btn-warning mininav mininavright" onclick="hgtui.toggle_map();"></button>-->
                     </div>
@@ -167,11 +172,11 @@
 
         <!--start Restaurant Details Page-->
         <div  id="restdetails">
-            <div class="container">
+            <div class="span7 offset3">
                 <div class="placeholder"></div>
                 <table id="rest-details-canvas" align="center"></table>
                 <div id="buttonsonrestdetails" class align="center">
-                    <div class="container">
+                    <div class="span9 offset2">
                         <button class="btn btn-warning mininav mininavleft" onclick="hgtui.offrestdetails();">Back!</button>
                         <!--<button class="btn btn-warning mininav mininavright" onclick="hgtui.toggle_map();"></button>-->
                     </div>
