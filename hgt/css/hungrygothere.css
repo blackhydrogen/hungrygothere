@@ -60,8 +60,11 @@ h1.title1, h1.title2 {
   line-height:normal;
 } 
 
-h1.listviewtitle {
-  font-size: 25px;
+.listviewtitle {
+  font-size: 18px;
+  font-weight: bold;
+  padding-top: 2px;
+  padding-bottom: 2px;
 } 
 
 td,th {
@@ -69,8 +72,8 @@ td,th {
   border: 1px;
 }
 
-a.nodeco,
-a.nodeco:hover {
+.nodeco,
+.nodeco:hover {
   font-style: none;
   color: white;
 }
@@ -153,6 +156,16 @@ body {
   background-color: #9b200a;
   color: white;
   height: 100%;
+  font-family: Calibri;
+}
+
+.navbar {
+  font-family: Impact;
+}
+
+.btn {
+  font-family: Calibri, Helvetica;
+  font-weight: bold;
 }
 
 .container, .span8 {
@@ -177,7 +190,13 @@ body {
 
 #list-canvas, #geolist-canvas, #rest-details-canvas {
   width: 100%;
+  border-top: 2px solid;
+  text-align: center;
 } 
+
+.bottomborder {
+  border-bottom: 2px solid white;
+}
 
 #innerList{
   width: 100%;
@@ -185,6 +204,9 @@ body {
 
 #listTitle {
   text-align: left;
+  width: 100%;
+  padding-bottom: 8px;
+  padding-top: 8px;
 } 
 
 #listRating{
@@ -228,9 +250,11 @@ body {
   } 
 
 
-  h1.listviewtitle {
-    font-size: 40px;
-    line-height:normal;
+  .listviewtitle {
+    font-size: 30px;
+    font-weight: bold;
+    padding-bottom: 10px;
+    padding-top: 10px;
   } 
 
   .btn-xlarge {
@@ -265,7 +289,7 @@ body {
   }
 
   .placeholder,.placeholder2 {
-    padding:27px;
+    padding:25px;
   }
 
   .placeholder3 {
@@ -294,7 +318,7 @@ body {
   }
 
   #buttonsonlist, #buttonsongeolist, #buttonsonrestdetails {
-    margin-bottom: 30px;
+    margin-bottom: 0px;
   }
 
   #map-canvas {
@@ -304,7 +328,7 @@ body {
   }
 
   #list-canvas, #geolist-canvas, #rest-details-canvas {
-    width: 70%;
+    width: 100%;
   } 
 
   #listRating{

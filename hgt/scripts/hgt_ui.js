@@ -34,9 +34,9 @@ hgtui.loadlist = function() {
 	listcanvas = document.getElementById('list-canvas');
 	var addhtml = "";   
 	for (var i = 0; i < hgt.restaurants.length; i++) {
-		addhtml += '<tr><td><table id="innerList"><tr><th id="listTitle">';
+		addhtml += '<tr><td><table id="innerList"><tr><th id="listTitle" class="bottomborder">';
 		addhtml += '<a class="nodeco" href="#" onclick="hgtui.restdetails(' + i +')">';
-		addhtml += '<h1 class="listviewtitle">' + hgt.restaurants[i].title + '</h1></a></td></tr><tr><th id="listRating">Rating:' + hgt.restaurants[i].rating + '</th></tr></table><hr></td></tr>';
+		addhtml += '<div class="listviewtitle">' + hgt.restaurants[i].title + '</div></a><span id="listRating">Rating: ' + hgt.restaurants[i].rating + '</span></th></tr></table></td></tr>';
 	}
 	listcanvas.innerHTML= addhtml;
 }
@@ -70,10 +70,10 @@ hgtui.show_geolist = function(resultsList, functionToCallOnClick, textboxId) {
 	hgtui.geolist_functionToCall = functionToCallOnClick;
 	hgtui.geolist_textboxId = textboxId;
 
-	var addhtml = "<hr>";   
+	var addhtml = "";   
 	for (var i = 0; i < resultsList.length; i++) {
-		addhtml += '<tr><td>';
-		addhtml += '<h1 class="listviewtitle"><a href="#" class="nodeco" onclick="hgtui.geolist_entryClick(' + i + ')">' + resultsList[i].formatted_address + '</a></h1><hr>';
+		addhtml += '<tr><td class="bottomborder">';
+		addhtml += '<div class="listviewtitle"><a href="#" class="nodeco" onclick="hgtui.geolist_entryClick(' + i + ')">' + resultsList[i].formatted_address.replace(", Singapore","") + '</a></div>';
 		addhtml += '</td></tr>';
 	}
 	document.getElementById('geolist-canvas').innerHTML = addhtml;
@@ -173,7 +173,7 @@ hgtui.restdetails = function(index) {
 	document.getElementById('maplistarea').style.display = 'none';
 	document.getElementById('restdetails').style.display = 'block';
 	var addhtml = "";
-	addhtml += '<tr><td><h1 class="listviewtitle">' + hgt.restaurants[index].title + '</h1><hr></td></tr>';
+	addhtml += '<tr><td><div class="listviewtitle"><br />' + hgt.restaurants[index].title + '</div><hr></td></tr>';
 	addhtml += '<tr><td id="listAddress">' + hgt.restaurants[index].address + '</td></tr><tr><td class="placeholder3"></td></tr>';
 	addhtml += '<tr><td id="list">' + hgt.restaurants[index].contact + '</td></tr><tr><td class="placeholder3"></td></tr>';
 	addhtml += '<tr><th id="list">Queue How Long: ' + hgt.restaurants[index].waitingtime_queuing + ' min<br />Wait How Long: ' + hgt.restaurants[index].waitingtime_serving + ' min<hr></th></tr><tr><td class="placeholder3"></td></tr>';
