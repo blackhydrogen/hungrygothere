@@ -102,6 +102,15 @@ hgt.getNearbyRestaurantsByNamedLocation = function(namedLocation, leeway) {
 	g.geocoder.geocode({'address': namedLocation, 'bounds': g.searchBounds},
 		function(results, status) {
 			if (status == google.maps.GeocoderStatus.OK) {
+				results[0].formatted_address = results[0].formatted_address.replace(", Singapore", "");
+				for(var i = 1; i < results.length; i++) {
+					results[i].formatted_address = results[i].formatted_address.replace(", Singapore", "");
+					if(results[i].formatted_address == results[i-1].formatted_address) {
+						results.splice(i, 1);
+						i--;
+					}
+				}
+
 				if(results.length == 1) {
 					hgt.getNearbyRestaurantsByLatLon(results[0].geometry.location.lat(), results[0].geometry.location.lng(), leeway)
 				}
@@ -179,6 +188,15 @@ hgt.getRestaurantsAlongRoute = function(startLocation, endLocation) {
 		g.geocoder.geocode({'address': startLocation, 'bounds': g.searchBounds},
 			function(results, status) {
 				if (status == google.maps.GeocoderStatus.OK) {
+					results[0].formatted_address = results[0].formatted_address.replace(", Singapore", "");
+					for(var i = 1; i < results.length; i++) {
+						results[i].formatted_address = results[i].formatted_address.replace(", Singapore", "");
+						if(results[i].formatted_address == results[i-1].formatted_address) {
+							results.splice(i, 1);
+							i--;
+						}
+					}
+
 					if(results.length == 1) {
 						hgt.getRestaurantsAlongRoute_setStartCoordinates(callId, results[0].geometry.location.lat(), results[0].geometry.location.lng())
 					}
@@ -209,6 +227,14 @@ hgt.getRestaurantsAlongRoute = function(startLocation, endLocation) {
 	g.geocoder.geocode({'address': endLocation, 'bounds': g.searchBounds},
 		function(results, status) {
 			if (status == google.maps.GeocoderStatus.OK) {
+				results[0].formatted_address = results[0].formatted_address.replace(", Singapore", "");
+				for(var i = 1; i < results.length; i++) {
+					results[i].formatted_address = results[i].formatted_address.replace(", Singapore", "");
+					if(results[i].formatted_address == results[i-1].formatted_address) {
+						results.splice(i, 1);
+						i--;
+					}
+				}	
 				if(results.length == 1) {
 					hgt.getRestaurantsAlongRoute_setEndCoordinates(callId, results[0].geometry.location.lat(), results[0].geometry.location.lng())
 				}

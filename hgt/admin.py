@@ -11,13 +11,13 @@ class AdminPageHandler(webapp2.RequestHandler):
 			insertIntoDB1();
 			self.response.out.write("Inserted 1")
 		elif action == "insert2 reload":
-			insertIntoDB1();
+			insertIntoDB2();
 			self.response.out.write("Inserted 2")
 		elif action == "insert3 reload":
-			insertIntoDB1();
+			insertIntoDB3();
 			self.response.out.write("Inserted 3")
 		elif action == "insert4 reload":
-			insertIntoDB1();
+			insertIntoDB4();
 			self.response.out.write("Inserted 4")
 			
 		template = jinja_environment.get_template("adminpage.html")
