@@ -73,7 +73,7 @@ hgtui.show_geolist = function(resultsList, functionToCallOnClick, textboxId) {
 	var addhtml = "";   
 	for (var i = 0; i < resultsList.length; i++) {
 		addhtml += '<tr><td class="bottomborder">';
-		addhtml += '<div class="listviewtitle"><a href="#" class="nodeco" onclick="hgtui.geolist_entryClick(' + i + ')">' + resultsList[i].formatted_address.replace(", Singapore","") + '</a></div>';
+		addhtml += '<div class="listviewtitle"><a href="#" class="nodeco" onclick="hgtui.geolist_entryClick(' + i + ')">' + resultsList[i].formatted_address + '</a></div>';
 		addhtml += '</td></tr>';
 	}
 	document.getElementById('geolist-canvas').innerHTML = addhtml;
