@@ -11,10 +11,20 @@ from google.appengine.api import users
 jinja_environment = jinja2.Environment(
 	loader=jinja2.FileSystemLoader(os.path.dirname(__file__) + "/templates"))
 
-##### Direct File Imports #####
+###################################################################################################
+##### Direct File Imports #########################################################################
+###################################################################################################
+
 execfile("admin.py")
 
-##### Page Handlers (No authentication required) #####
+
+
+###################################################################################################
+###################################################################################################
+##### Page Handlers (No authentication required) ##################################################
+###################################################################################################
+###################################################################################################
+
 class MainHandler(webapp2.RequestHandler):
 	def get(self):
 		template = jinja_environment.get_template("index.html")
@@ -31,7 +41,13 @@ class genericTestHandler(webapp2.RequestHandler):
 		#template = jinja_environment.get_template("directions_test.html")
 		#self.response.out.write(template.render())
 
-##### Page Handlers (Authentication required) #####
+
+
+###################################################################################################
+###################################################################################################
+##### Page Handlers (Authentication required) #####################################################
+###################################################################################################
+###################################################################################################
 
 class loginHandler(webapp2.RequestHandler):
 	def get(self):
@@ -41,7 +57,13 @@ class loginHandler(webapp2.RequestHandler):
 		else:
 			self.redirect(self.request.host_url)
 
-##### Dynamic Script Handlers #####
+
+
+###################################################################################################
+###################################################################################################
+##### Dynamic Script Handlers #####################################################################
+###################################################################################################
+###################################################################################################
 
 class userLoginInfoHandler(webapp2.RequestHandler):
 	def get(self):
@@ -59,9 +81,15 @@ class userLoginInfoHandler(webapp2.RequestHandler):
 
 		template = jinja_environment.get_template("userLoginInfo.js")
 		self.response.out.write(template.render(writeValues))
-		
 
-##### Ajax Handlers #####
+
+
+###################################################################################################
+###################################################################################################
+##### Ajax Handlers ###############################################################################
+###################################################################################################
+###################################################################################################
+
 class getNearbyRestaurantsHandler(webapp2.RequestHandler):
 	def get(self):
 		self.response.headers["Content-Type"] = "application/json"
@@ -80,13 +108,114 @@ class getRestaurantsAlongRouteHandler(webapp2.RequestHandler):
 		self.response.headers["Content-Type"] = "application/json"
 		self.response.out.write(json.dumps({"restaurants": results, "error": False}))
 
-##### Pages defination #####
+class getFavouriteRestaurantsHandler(webapp2.RequestHandler):
+	def get(self):
+		self.response.headers["Content-Type"] = "application/json"
+		user = users.get_current_user()
+
+		if user:
+			hgtUser = HgtUser.get_or_insert(user.user_id(), user = user)
+			results = []
+
+			restaurantList = hgtUser.favouriteRestaurants;
+			restaurantList.order('-timeAdded')
+
+			for i in restaurantList:
+				results.append(convertToJSON(i.restaurant))
+
+			self.response.out.write(json.dumps({"restaurants": results, "error": False}))
+		else:
+			self.response.out.write(json.dumps({"restaurants": [], "error": True, "errorMsg": "User not logged in."}))
+
+class getRecentRestaurantsHandler(webapp2.RequestHandler):
+	def get(self):
+		self.response.headers["Content-Type"] = "application/json"
+		user = users.get_current_user()
+
+		if user:
+			hgtUser = HgtUser.get_or_insert(user.user_id(), user = user)
+			results = []
+
+			restaurantList = hgtUser.favouriteRestaurants;
+			restaurantList.order('-timeAdded')
+
+			for i in restaurantList:
+				results.append(convertToJSON(i.restaurant))
+
+			self.response.out.write(json.dumps({"restaurants": results, "error": False}))
+		else:
+			self.response.out.write(json.dumps({"restaurants": [], "error": True, "errorMsg": "User not logged in."}))
+
+class addFavouriteRestaurantHandler(webapp2.RequestHandler):
+	def get(self):
+	#	self.response.headers["Content-Type"] = "application/json"
+	#	self.response.out.write(json.dumps({"error": True, "errorMsg": "GET method not supported."}))
+	#def post(self):
+		self.response.headers["Content-Type"] = "application/json"
+		user = users.get_current_user()
+
+		if user:
+			try:
+				hgtUser = HgtUser.get_or_insert(user.user_id(), user = user)
+				restaurantId = int(self.request.get("id"))
+
+				restaurant = Restaurant.get_by_id(restaurantId)
+
+				if restaurant is None:
+					raise Exception()
+				
+				FavouriteLink(user=hgtUser, restaurant=restaurant).put()
+				self.response.out.write(json.dumps({"error": False}))
+			except:
+				self.response.out.write(json.dumps({"error": True, "errorMsg": "ID provided is invalid."}))
+		else:
+			self.response.out.write(json.dumps({"error": True, "errorMsg": "User not logged in."}))
+
+class addRecentRestaurantHandler(webapp2.RequestHandler):
+	def get(self):
+	#	self.response.headers["Content-Type"] = "application/json"
+	#	self.response.out.write(json.dumps({"error": True, "errorMsg": "GET method not supported."}))
+	#def post(self):
+		self.response.headers["Content-Type"] = "application/json"
+		user = users.get_current_user()
+
+		if user:
+			try:
+				hgtUser = HgtUser.get_or_insert(user.user_id(), user = user)
+				restaurantId = int(self.request.get("id"))
+
+				restaurant = Restaurant.get_by_id(restaurantId)
+
+				if restaurant is None:
+					raise Exception()
+				
+				RecentLink(user=hgtUser, restaurant=restaurant).put()
+				#delete last entry if too long? or in the getRecent handler?
+				self.response.out.write(json.dumps({"error": False}))
+			except:
+				self.response.out.write(json.dumps({"error": True, "errorMsg": "ID provided is invalid."}))
+		else:
+			self.response.out.write(json.dumps({"error": True, "errorMsg": "User not logged in."}))
+
+
+###################################################################################################
+###################################################################################################
+###################################################################################################
+##### Pages definition ############################################################################
+###################################################################################################
+###################################################################################################
+###################################################################################################
 
 app = webapp2.WSGIApplication([
 	("/", MainHandler),
 	("/a", loginHandler),
+
 	("/getNearbyRestaurants", getNearbyRestaurantsHandler),
 	("/getRestaurantsAlongRoute", getRestaurantsAlongRouteHandler),
+	("/getFavouriteRestaurants", getFavouriteRestaurantsHandler),
+	("/getRecentRestaurants", getRecentRestaurantsHandler),
+	("/addFavouriteRestaurant", addFavouriteRestaurantHandler),
+	("/addRecentRestaurant", addRecentRestaurantHandler),
 
 	("/dscripts/userLoginInfo.js", userLoginInfoHandler),
 
@@ -95,7 +224,15 @@ app = webapp2.WSGIApplication([
 	("/admin", AdminPageHandler)
 ], debug=True)
 
-##### Models #####
+
+
+###################################################################################################
+###################################################################################################
+###################################################################################################
+##### Models ######################################################################################
+###################################################################################################
+###################################################################################################
+###################################################################################################
 
 class Restaurant(db.Model):
 	uid = db.IntegerProperty(required=True)
@@ -114,7 +251,28 @@ class Restaurant(db.Model):
 	waitingtime_serving = db.IntegerProperty()
 	url = db.StringProperty()
 
-##### Functions #####
+class HgtUser(db.Model):
+	user = db.UserProperty()
+
+class RecentLink(db.Model):
+	user = db.ReferenceProperty(reference_class=HgtUser, collection_name="recentRestaurants")
+	restaurant = db.ReferenceProperty(reference_class=Restaurant, collection_name="usersRecented")
+	timeAdded = db.DateTimeProperty(auto_now_add=True)
+
+class FavouriteLink(db.Model):
+	user = db.ReferenceProperty(reference_class=HgtUser, collection_name="favouriteRestaurants")
+	restaurant = db.ReferenceProperty(reference_class=Restaurant, collection_name="usersFavourited")
+	timeAdded = db.DateTimeProperty(auto_now_add=True)
+
+
+
+###################################################################################################
+###################################################################################################
+###################################################################################################
+##### Functions ###################################################################################
+###################################################################################################
+###################################################################################################
+###################################################################################################
 
 # find restaurants within longitude/latitude +/- leeway; 0.02 ~= 4.4 km box
 def findNearbyRestaurants(userLatitude, userLongitude, leeway = 0.02):
@@ -136,23 +294,7 @@ def findNearbyRestaurants(userLatitude, userLongitude, leeway = 0.02):
 		#squares are awkward, circles less so
 		if ((i.latitude - userLatitude) ** 2 + (i.longitude - userLongitude) ** 2) >= leewaySquared:
 			continue
-		results.append({
-			"title": i.title,
-			"address": i.address,
-			"contact": i.contact,
-			"rating": i.rating_overall,
-			"rating_food": i.rating_food,
-			"rating_ambience": i.rating_ambience,
-			"rating_value": i.rating_value,
-			"rating_service": i.rating_service,
-			"reviewCount": i.review_count,
-			"latitude": i.latitude,
-			"longitude": i.longitude,
-			"waitingtime_serving": 10,
-			"waitingtime_queuing": 10,
-			"url": i.url,
-			"ratingReviewCountIndex": calcRatingReviewCountIndex(i.rating_overall, i.review_count)
-		})
+		results.append(convertToJSON(i))
 
 	#results = multikeysort(results, ['-ratingReviewCountIndex'])[0:15]
 	return filterAndSortResults(results)
@@ -187,23 +329,7 @@ def findRestaurantsAlongRoute(route, leeway):
 				break
 
 		if restaurantWithinRange:
-			results.append({
-				"title": i.title,
-				"address": i.address,
-				"contact": i.contact,
-				"rating": i.rating_overall,
-				"rating_food": i.rating_food,
-				"rating_ambience": i.rating_ambience,
-				"rating_value": i.rating_value,
-				"rating_service": i.rating_service,
-				"reviewCount": i.review_count,
-				"latitude": i.latitude,
-				"longitude": i.longitude,
-				"waitingtime_serving": 10,
-				"waitingtime_queuing": 10,
-				"url": i.url,
-				"ratingReviewCountIndex": calcRatingReviewCountIndex(i.rating_overall, i.review_count)
-			})
+			results.append(convertToJSON(i))
 
 	#results = multikeysort(results, ['-ratingReviewCountIndex'])[0:15]
 	return filterAndSortResults(results)
@@ -220,6 +346,26 @@ def filterAndSortResults(results):
 		if addToReturnValue:
 			returnValue.append(results[i]);
 	return returnValue[0:15]
+
+def convertToJSON(restaurant):
+	return {
+		"title": restaurant.title,
+		"address": restaurant.address,
+		"contact": restaurant.contact,
+		"rating": restaurant.rating_overall,
+		"rating_food": restaurant.rating_food,
+		"rating_ambience": restaurant.rating_ambience,
+		"rating_value": restaurant.rating_value,
+		"rating_service": restaurant.rating_service,
+		"reviewCount": restaurant.review_count,
+		"latitude": restaurant.latitude,
+		"longitude": restaurant.longitude,
+		"waitingtime_serving": 10,
+		"waitingtime_queuing": 10,
+		"url": restaurant.url,
+		"ratingReviewCountIndex": calcRatingReviewCountIndex(restaurant.rating_overall, restaurant.review_count),
+		"id": restaurant.key().id()
+	}
 
 
 # this index calculator is a bit crude, could be improved.

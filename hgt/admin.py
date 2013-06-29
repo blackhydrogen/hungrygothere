@@ -1,5 +1,23 @@
 class AdminPageHandler(webapp2.RequestHandler):
 	def get(self):
+		"""user = users.get_current_user()
+		if user:
+			query = db.GqlQuery("SELECT title FROM Restaurant WHERE uid = 391")
+			rest = query.get()
+			self.response.out.write(rest.key())
+
+			#hgtUser = HgtUser.get_or_insert(user.user_id(), user = user)
+
+			#RecentLink(linkUser=hgtUser, linkRes=rest).put()
+
+			#for i in hgtUser.favRes:
+			#	self.response.out.write("<br>hi: " + i.linkRes.title)
+
+			self.response.out.write("<br>Link written")
+		else:
+			self.response.out.write("No user")"""
+		
+
 		template = jinja_environment.get_template("adminpage.html")
 		self.response.out.write(template.render())
 	def post(self):
@@ -19,6 +37,12 @@ class AdminPageHandler(webapp2.RequestHandler):
 		elif action == "insert4 reload":
 			insertIntoDB4();
 			self.response.out.write("Inserted 4")
+		elif action == "insertall gpmg":
+			insertIntoDB1();
+			insertIntoDB2();
+			insertIntoDB3();
+			insertIntoDB4();
+			self.response.out.write("Inserted All")
 			
 		template = jinja_environment.get_template("adminpage.html")
 		self.response.out.write(template.render())
