@@ -6,6 +6,7 @@ import json
 import logging
 from operator import itemgetter
 from google.appengine.ext import db
+from google.appengine.api import users
 
 jinja_environment = jinja2.Environment(
 	loader=jinja2.FileSystemLoader(os.path.dirname(__file__) + "/templates"))
@@ -13,7 +14,7 @@ jinja_environment = jinja2.Environment(
 ##### Direct File Imports #####
 execfile("admin.py")
 
-##### Page Handlers #####
+##### Page Handlers (No authentication required) #####
 class MainHandler(webapp2.RequestHandler):
 	def get(self):
 		template = jinja_environment.get_template("index.html")
@@ -24,19 +25,41 @@ class DLHandler(webapp2.RequestHandler):
 		template = jinja_environment.get_template("dl.html")
 		self.response.out.write(template.render())
 
-class whereCanEatHandler(webapp2.RequestHandler):
-	def get(self):
-		template = jinja_environment.get_template("whereCanEat.html")
-		self.response.out.write(template.render())
-
 class genericTestHandler(webapp2.RequestHandler):
 	def get(self):
-		template = jinja_environment.get_template("directions_test.html")
-		self.response.out.write(template.render())
+		self.response.out.write("No test page currently")
+		#template = jinja_environment.get_template("directions_test.html")
+		#self.response.out.write(template.render())
 
-class halfwayEatWhereHandler(webapp2.RequestHandler):
+##### Page Handlers (Authentication required) #####
+
+class loginHandler(webapp2.RequestHandler):
 	def get(self):
-		self.response.out.write("output page template here")
+		user = users.get_current_user()
+		if user:
+			self.redirect("/")
+		else:
+			self.redirect(self.request.host_url)
+
+##### Dynamic Script Handlers #####
+
+class userLoginInfoHandler(webapp2.RequestHandler):
+	def get(self):
+		self.response.headers["Content-Type"] = "application/javascript"
+
+		writeValues = {
+			"nickname": "",
+			"logoutUrl": ""
+		}
+
+		user = users.get_current_user()
+		if user:  # signed in already
+			writeValues["nickname"] = users.get_current_user().nickname()
+			writeValues["logoutUrl"] = users.create_logout_url(self.request.host_url)
+
+		template = jinja_environment.get_template("userLoginInfo.js")
+		self.response.out.write(template.render(writeValues))
+		
 
 ##### Ajax Handlers #####
 class getNearbyRestaurantsHandler(webapp2.RequestHandler):
@@ -57,21 +80,18 @@ class getRestaurantsAlongRouteHandler(webapp2.RequestHandler):
 		self.response.headers["Content-Type"] = "application/json"
 		self.response.out.write(json.dumps({"restaurants": results, "error": False}))
 
-class AjaxHandler(webapp2.RequestHandler):
-	def post(self):
-		path_lon_lat = eval(self.request.get("path_lon_lat"))
-		self.response.out.write(path_lon_lat);
-
 ##### Pages defination #####
 
 app = webapp2.WSGIApplication([
 	("/", MainHandler),
-	("/ajax", AjaxHandler),
-	("/dl", DLHandler),
-	("/test", genericTestHandler),
-	("/whereCanEat", whereCanEatHandler),
+	("/a", loginHandler),
 	("/getNearbyRestaurants", getNearbyRestaurantsHandler),
 	("/getRestaurantsAlongRoute", getRestaurantsAlongRouteHandler),
+
+	("/dscripts/userLoginInfo.js", userLoginInfoHandler),
+
+	("/dl", DLHandler),
+	("/test", genericTestHandler),
 	("/admin", AdminPageHandler)
 ], debug=True)
 

@@ -69,8 +69,8 @@ hgt.currentLocationFoundSuccess = function(position) {
 }
 
 hgt.currentLocationFoundFailure = function() {
-	document.getElementById("useCurrentLocationButton").style.display = "none";
-	document.getElementById("useCurrentLocationButton1").style.display = "none";
+	//document.getElementById("useCurrentLocationButton").style.display = "none";
+	//document.getElementById("useCurrentLocationButton1").style.display = "none";
 	//disable current location button??
 	//hgt.currentLocationAvailable = false;
 }
