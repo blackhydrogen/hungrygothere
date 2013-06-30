@@ -5,9 +5,17 @@ api_version: 1
 threadsafe: yes
 
 handlers:
-- url: /favicon\.ico
-  static_files: favicon.ico
-  upload: favicon\.ico
+- url: /favicon.ico
+  static_files: images/favicon.ico
+  upload: images/favicon.ico
+
+- url: /apple-touch-icon.png
+  static_files: images/apple-touch-icon.png
+  upload: images/apple-touch-icon.png
+
+- url: /apple-touch-icon-precomposed.png
+  static_files: images/apple-touch-icon-precomposed.png
+  upload: images/apple-touch-icon-precomposed.png
 
 - url: /scripts
   static_dir: scripts
