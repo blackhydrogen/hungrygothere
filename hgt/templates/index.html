@@ -21,9 +21,10 @@
         <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false"></script>
         <script type="text/javascript" src="scripts/hgt_ui.js"></script>
         <script type="text/javascript" src="scripts/hgt_main.js"></script>
+        <script type="text/javascript" src="dscripts/userLoginInfo.js"></script>
     </head>
 
-    <body onload="hgtui.reset_fields(); hgt.findCurrentLocation();">    
+    <body onload="hgtui.reset_fields(); hgt.findCurrentLocation(); hgtui.setLoginDetails();">    
         <div id="wholething">
             <div class="navbar navbar-fixed-top">
                 <div class="navbar-inner">
@@ -110,6 +111,7 @@
                 </div>
             </div>
             <!--End Halfway Eat Where area -->
+            <div id="temp_login"></div>
         </div>
 
         <div id="maplistarea">
@@ -197,6 +199,5 @@
             </td></tr>
         <table>
         <!--end error/alert/overlay box-->
-
     </body>
 </html>

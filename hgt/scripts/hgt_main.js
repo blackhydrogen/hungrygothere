@@ -401,8 +401,6 @@ hgt.clearMap = function() {
 	g.directionsRenderer.setDirections({routes: []});
 }
 
-
-
 function d(v) {
 	console.log(v);
 }

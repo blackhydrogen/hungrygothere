@@ -14,10 +14,19 @@ hgtui.geolist_functionToCall = null;
 hgtui.geolist_queue = [];
 hgtui.geolist_textboxId = null;
 
+hgtui.setLoginDetails = function() {
+	if(hgtuser.nickname == "") {
+		document.getElementById("temp_login").innerHTML = "<a href='/a'>Login</a>";
+	}
+	else {
+		document.getElementById("temp_login").innerHTML = "Logged in as " + hgtuser.nickname + ". <a href='" + hgtuser.logoutUrl + "'>Logout</a>";
+	}
+}
+
 hgtui.reset_fields = function() {
 	var currlocinput = document.getElementById('currlocation');
 	currlocinput.disabled = false;
-	currlocinput.value = '';
+	currlocinput.value = 'Kent Ridge';
 	currlocinput.placeholder = 'Enter your start location!';
 
 	var status = document.getElementById('status');
@@ -25,8 +34,13 @@ hgtui.reset_fields = function() {
 		status.value = '';
 	}
 
+	var currlocinput1 = document.getElementById('currlocation1');
+	currlocinput1.disabled = false;
+	currlocinput1.value = 'Kent Ridge';
+	currlocinput1.placeholder = 'Enter your start location!';
+
 	var destinput = document.getElementById('destination');
-	currlocinput.value = '';
+	destinput.value = 'Yio Chu Kang Mrt';
 }
 
 
@@ -170,6 +184,30 @@ hgtui.off_list = function() {
 }
 
 hgtui.restdetails = function(index) {
+	if(hgtuser.nickname == "") {
+		hgtui.displayRestaurantDetails(index, false);
+	}
+	else {
+		hgtui.showLoadingScreen();
+		$.post(
+			"/isFavouriteRestaurant",
+			{id: hgt.restaurants[index].id},
+			function(data, status) {
+				if(data.error) {
+					hgtui.inform("An error occured when trying to get more information regarding this restaurant.<br>Please try again.")
+				}
+				else {
+					hgtui.displayRestaurantDetails(index, data.isFavourite);
+				}
+			},
+			"json"
+		);
+	}
+}
+
+hgtui.displayRestaurantDetails = function(index, isFavourite) {
+	hgtui.hideLoadingScreen();
+
 	document.getElementById('maplistarea').style.display = 'none';
 	document.getElementById('restdetails').style.display = 'block';
 	var addhtml = "";
@@ -179,8 +217,23 @@ hgtui.restdetails = function(index) {
 	addhtml += '<tr><th id="list">Queue How Long: ' + hgt.restaurants[index].waitingtime_queuing + ' min<br />Wait How Long: ' + hgt.restaurants[index].waitingtime_serving + ' min<hr></th></tr><tr><td class="placeholder3"></td></tr>';
 	addhtml += '<tr><th id="listRating">Overall Rating: ' + hgt.restaurants[index].rating + '</th></tr><tr><td class="placeholder3"></td></tr>';
 	addhtml += '<tr><td id="list"><ul><li>Ambience: ' + hgt.restaurants[index].rating + '</li><li>Food: ' + hgt.restaurants[index].rating_food + '</li><li>Service: ' + hgt.restaurants[index].rating_service + '</li><li>Value: ' + hgt.restaurants[index].rating_value + '</li></td></tr><tr><td class="placeholder3"></td></tr>';
+
+	if(hgtuser.nickname == "") {
+		addhtml += '<tr><th id="list"><a href="#" onclick="hgtui.inform(\'Please login to use this feature.\');" class="nodeco">Add To Favourites</a></td></tr><tr><td class="placeholder3"></th></tr>';
+	}
+	else {
+		if(isFavourite) {
+			addhtml += '<tr><th id="list"><span id="addToFavouriteLink">Already a Favourite Restaurant!</span></td></tr><tr><td class="placeholder3"></th></tr>';
+		}
+		else {
+			addhtml += '<tr><th id="list"><span id="addToFavouriteLink"><a href="#" onclick="hgtui.addToFavourites(' + index + ');" class="nodeco">Add To Favourites</a></span></td></tr><tr><td class="placeholder3"></th></tr>';
+		}
+	}
+	
 	addhtml += '<tr><th id="listURL"><a target="_blank" href="' + hgt.restaurants[index].url + '#moreReview" class="nodeco">Click here to read reviews!</a></td></tr><tr><td class="placeholder3"></th></tr>';
 	document.getElementById('rest-details-canvas').innerHTML=addhtml;
+
+	hgtui.addToRecents(index);
 }
 
 hgtui.offrestdetails = function() {
@@ -188,6 +241,38 @@ hgtui.offrestdetails = function() {
 	document.getElementById('maplistarea').style.display = 'block';
 }
 
+hgtui.addToFavourites = function(index) {
+	if(hgtuser.nickname == "") {
+		hgtui.inform("This feature is for logged in users only. Please login to enjoy this feature.");
+		return;
+	}
+	$.post(
+		"/addFavouriteRestaurant",
+		{id: hgt.restaurants[index].id},
+		function(data, status) {
+			if(data.error) {
+				hgtui.inform("An error occured when trying to add this restaurant as your favourite.<br>The server returned with the following error message: " + data.errorMsg + "<br>Please try again.")
+			}
+			else {
+				hgtui.inform("Restaurant added as favourite!")
+				document.getElementById("addToFavouriteLink").innerHTML = "Added as Favourite Restaurant!";
+			}
+		},
+		"json"
+	);
+}
+
+hgtui.addToRecents = function(index) {
+	if(hgtuser.nickname == "") {
+		return;
+	}
+	$.post(
+		"/addRecentRestaurant",
+		{id: hgt.restaurants[index].id},
+		function(data, status) { d(data.error); d(data.errorMsg) },
+		"json"
+	);
+}
 
 hgtui.hideall = function() {
 	document.body.style.cssText = "";
@@ -236,7 +321,7 @@ hgtui.update_currlocation = function() {
 	if (currlocinput.disabled == false) {
 		hgtui.currlocation_previousValue = currlocinput.value;
 		currlocinput.disabled = true;
-		currlocinput.value = "Current Location"; //'(' + hgt.currentLatitude +','+ hgt.currentLongitude +')';
+		currlocinput.value = "Current Location";
 	} else {
 		currlocinput.disabled = false;
 		currlocinput.value = hgtui.currlocation_previousValue;
@@ -248,7 +333,7 @@ hgtui.update_currlocation1 = function() {
 	if (currlocinput1.disabled == false) {
 		hgtui.currlocation1_previousValue = currlocinput1.value;
 		currlocinput1.disabled = true;
-		currlocinput1.value = "Current Location"; //'(' + hgt.currentLatitude +','+ hgt.currentLongitude +')';
+		currlocinput1.value = "Current Location";
 	} else {
 		currlocinput1.disabled = false;
 		currlocinput1.value = hgtui.currlocation1_previousValue;
@@ -256,7 +341,6 @@ hgtui.update_currlocation1 = function() {
 }
 
 hgtui.collect_wherecaneat_info = function() {
-	//Extract All User Data
 	var currentlocation = document.getElementById('currlocation');
 	var status = document.getElementById('status');
 
@@ -286,10 +370,8 @@ hgtui.collect_halfwayeatwhere_info = function() {
 		hgtui.showLoadingScreen();
 		if (currentlocation.disabled == true) {
 			hgt.getRestaurantsAlongRoute(null, destination.value);
-			//alert('Searching NAISE Makan Places from your Current Location to ' + destination.value);
 		} else {
 			hgt.getRestaurantsAlongRoute(currentlocation.value, destination.value);
-			//alert('Searching NAISE Makan Places from ' + currentlocation.value + ' to ' + destination.value);
 		}
 	}
 }
@@ -352,8 +434,7 @@ hgtui.hideOverlays = function() {
 }
 
 hgtui.inform = function(msg) {
-	msg += "<br><input type='button' value='Okay' onclick='hgtui.hideOverlays()'>";
+	msg += "<br><div class='placeholder3'></div><input class='btn btn-warning mininav' type='button' value='Okay' onclick='hgtui.hideOverlays()'>";
 	document.getElementById("overlay_content").innerHTML = msg;
 	hgtui.showOverlays();
-	//alert(msg);
 }
