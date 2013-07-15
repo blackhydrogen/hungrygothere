@@ -24,132 +24,127 @@
         <script type="text/javascript" src="dscripts/userLoginInfo.js"></script>
     </head>
 
-    <body onload="hgtui.reset_fields(); hgt.findCurrentLocation(); hgtui.setLoginDetails();">    
-        <div id="wholething">
-            <div class="navbar navbar-fixed-top">
-                <div class="navbar-inner">
-                    <div class="container">
-                        
-                        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
-                        <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
-                        <span class="icon-bar"></span>
-                        <span class="icon-bar"></span>
-                        <span class="icon-bar"></span>
-                        </a>
-                         
-                        <!-- Be sure to leave the brand out there if you want it shown -->
-                        <a class="brand" href="">Hungry Go <u>T</u>here!</a>
-                         
-                        <!-- Everything you want hidden at 940px or less, place within here -->
-                        <div class="nav-collapse collapse">
-                            <!-- .nav, .navbar-search, .navbar-form, etc -->
-                            <ul class="nav">
-                                <li><a onclick="hgtui.showPage1();" href="#">Home</a></li>
-                                <li><a onclick="hgtui.showWhereCanEat();" href="#">Where Can Eat?</a></li>
-                                <li><a onclick="hgtui.showHalfwayEatWhere();" href="#">Halfway Eat Where?</a></li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!--start Page1 area -->
-            <div class="container" id="page1">
-                <div class="row">
-                    <div class="span6 offset3">
-                        <div align="center">
-                            <h1 class="title1">Hungry Go <u>T</u>here!</h1>
-                            <div class="placeholder"></div>
-                            <button class="btn btn-xlarge btn-warning fillparent" onclick="hgtui.showWhereCanEat();">Where Can Eat?</button>
-                            <div class="placeholder"></div>
-                            <button class="btn btn-xlarge btn-warning fillparent" onclick="hgtui.showHalfwayEatWhere();">Halfway Eat Where?</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <!--End Page1 area -->
-
-            <!--End Where Can Eat area -->
-            <div class="container" id="wherecaneat">
-                <div class="row">
-                    <div class="span6 offset3">
-                        <div align="center">
-                            <label><h1 class="title1">Where Are You?</h1></label>
-                            <input type="hidden" name="status" id="status" value="" />
-                            <input type="text" class="fillparent" id="currlocation" placeholder="Enter your start location!">
-                            <button type="button" id="useCurrentLocationButton" onclick="hgtui.update_currlocation();" class="btn btn-warning btn-small" data-toggle="button">Use My Current Location</button>
-                            <!--div class="placeholder"></div--><br /><br />
-                            <label><h1 class="title1">How You Go?</h1></label>
-                            <div class="btn-group" data-toggle="buttons-radio">
-                                <button type="button" class="btn btn-warning btn-small" onclick="hgtui.setDrive();" id="Drive"><span class="biggerfont">Drive</span></button>
-                                <button type="button" class="btn btn-warning btn-small" onclick="hgtui.setBus();" id="Bus"><span class="biggerfont">Bus</span></button>
-                                <button type="button" class="btn btn-warning btn-small" onclick="hgtui.setWalk();" id="Walk"><span class="biggerfont">Walk</span></button>
-                            </div><br /><br />
-                            <button class="btn btn-large fillparent" onclick="hgtui.collect_wherecaneat_info();">Tell Me Where Can Eat!</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <!--End Where Can Eat area -->
-
-
-            <!--Start Halfway Eat Where area -->
-            <div class="container" id="halfwayeatwhere">
-                <div class="row">
-                    <div class="span6 offset3">
-                        <div align="center">
-                            <label><h1 class="title1">Where Are You?</h1></label>
-                            <input type="text" class="fillparent" id="currlocation1" placeholder="Enter your start location!">
-                            <button type="button" id="useCurrentLocationButton1" onclick="hgtui.update_currlocation1();" class="btn btn-warning btn-small" data-toggle="button">Use My Current Location</button>
-                            <div class="placeholder"></div>
-                            <label><h1 class="title1">Where To?</h1></label>
-                            <input type="text" class="fillparent" id="destination" placeholder="Enter your destination!"><br /><br />
-                            <button class="btn btn-large fillparent" onclick="hgtui.collect_halfwayeatwhere_info();">Tell Me Halfway Eat Where!</button>
-                        </div>
-
-                    </div>
-                </div>
-            </div>
-            <!--End Halfway Eat Where area -->
-            <div id="temp_login"></div>
-        </div>
-
-        <div id="maplistarea">
-            <!--start map area -->
-            <div id="mapview">
+    <body onload="hgtui.reset_fields(); hgt.findCurrentLocation(); hgtui.setLoginDetails();">
+        <div class="navbar navbar-fixed-top" id="navigationbar">
+            <div class="navbar-inner">
                 <div class="container">
-                    <div class="placeholder2"></div>
-                    <div id="map-canvas"></div>
-                    <div id="buttonsonmap" class align="center">
-                        <div class="container">
-                            <button class="btn btn-warning mininav mininavleft" onclick="hgtui.off_maps();">Back!</button>
-                            <button class="btn btn-warning mininav mininavright" onclick="hgtui.toggle_list();">List View</button>
-                        </div>
+                    
+                    <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+                    <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    </a>
+                     
+                    <!-- Be sure to leave the brand out there if you want it shown -->
+                    <a class="brand" href="">Hungry Go <u>T</u>here!</a>
+                     
+                    <!-- Everything you want hidden at 940px or less, place within here -->
+                    <div class="nav-collapse collapse">
+                        <!-- .nav, .navbar-search, .navbar-form, etc -->
+                        <ul class="nav">
+                            <li><a onclick="hgtui.showPage1();" href="#">Home</a></li>
+                            <li><a onclick="hgtui.showWhereCanEat();" href="#">Where Can Eat?</a></li>
+                            <li><a onclick="hgtui.showHalfwayEatWhere();" href="#">Halfway Eat Where?</a></li>
+                            <li><a><div id="temp_login"></div></a><li>
+                        </ul>
                     </div>
                 </div>
             </div>
-            <!--end map area -->
-
-            <!--start listview -->
-            <div id="listview">
-                <div class="span7 offset3">
-                    <!--div class="placeholder"></div-->
-                    <div align="center">
-                        <br /><h1 class="title1">List of Restaurants</h1>
-                    </div>
-                    <div class="placeholder"></div>
-                    <table id="list-canvas" align="center"></table>
-                    <div id="buttonsonlist" class align="center">
-                        <div class="span9 offset2">
-                            <button class="btn btn-warning mininav mininavleft" onclick="hgtui.toggle_map();">Back!</button>
-                            <!--button class="btn btn-warning mininav mininavright" onclick="hgtui.toggle_map();">Map View</button-->
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <!--end listview -->
         </div>
 
+        <!--start Page1 area -->
+        <div class="container" id="page1">
+            <div class="row">
+                <div class="span6 offset3">
+                    <div align="center">
+                        <h1 class="title1">Hungry Go <u>T</u>here!</h1>
+                        <div class="placeholder"></div>
+                        <button class="btn btn-xlarge btn-warning fillparent" onclick="hgtui.showWhereCanEat();">Where Can Eat?</button>
+                        <div class="placeholder"></div>
+                        <button class="btn btn-xlarge btn-warning fillparent" onclick="hgtui.showHalfwayEatWhere();">Halfway Eat Where?</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--End Page1 area -->
+
+        <!--End Where Can Eat area -->
+        <div class="container" id="wherecaneat">
+            <div class="row">
+                <div class="span6 offset3">
+                    <div align="center">
+                        <label><h1 class="title1">Where Are You?</h1></label>
+                        <input type="hidden" name="status" id="status" value="" />
+                        <input type="text" class="fillparent" id="currlocation" placeholder="Enter your start location!">
+                        <button type="button" id="useCurrentLocationButton" onclick="hgtui.update_currlocation();" class="btn btn-warning btn-small" data-toggle="button">Use My Current Location</button>
+                        <!--div class="placeholder"></div--><br /><br />
+                        <label><h1 class="title1">How You Go?</h1></label>
+                        <div class="btn-group" data-toggle="buttons-radio">
+                            <button type="button" class="btn btn-warning btn-small" onclick="hgtui.setDrive();" id="Drive"><span class="biggerfont">Drive</span></button>
+                            <button type="button" class="btn btn-warning btn-small" onclick="hgtui.setBus();" id="Bus"><span class="biggerfont">Bus</span></button>
+                            <button type="button" class="btn btn-warning btn-small" onclick="hgtui.setWalk();" id="Walk"><span class="biggerfont">Walk</span></button>
+                        </div><br /><br />
+                        <button class="btn btn-large fillparent" onclick="hgtui.collect_wherecaneat_info();">Tell Me Where Can Eat!</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--End Where Can Eat area -->
+
+
+        <!--Start Halfway Eat Where area -->
+        <div class="container" id="halfwayeatwhere">
+            <div class="row">
+                <div class="span6 offset3">
+                    <div align="center">
+                        <label><h1 class="title1">Where Are You?</h1></label>
+                        <input type="text" class="fillparent" id="currlocation1" placeholder="Enter your start location!">
+                        <button type="button" id="useCurrentLocationButton1" onclick="hgtui.update_currlocation1();" class="btn btn-warning btn-small" data-toggle="button">Use My Current Location</button>
+                        <div class="placeholder"></div>
+                        <label><h1 class="title1">Where To?</h1></label>
+                        <input type="text" class="fillparent" id="destination" placeholder="Enter your destination!"><br /><br />
+                        <button class="btn btn-large fillparent" onclick="hgtui.collect_halfwayeatwhere_info();">Tell Me Halfway Eat Where!</button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+        <!--End Halfway Eat Where area -->
+
+        <!--start map area -->
+        <div id="mapview">
+            <div class="container">
+                <div class="placeholder2"></div>
+                <div id="map-canvas"></div>
+                <div id="buttonsonmap" class align="center">
+                    <div class="container">
+                        <button class="btn btn-warning mininav floatleft" onclick="hgtui.show_lastviewed_page();">Back!</button>
+                        <button class="btn btn-warning mininav floatright" onclick="hgtui.toggle_list();">List View</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--end map area -->
+
+        <!--start listview -->
+        <div id="listview">
+            <div class="span7 offset3">
+                <!--div class="placeholder"></div-->
+                <div align="center">
+                    <h1 class="title1">List of Restaurants</h1>
+                </div>
+                <div class="placeholder"></div>
+                <table id="list-canvas" align="center"></table>
+                <div id="buttonsonlist" class align="center">
+                    <div class="span9 offset2">
+                        <button class="btn btn-warning mininav floatleft" onclick="hgtui.toggle_map();">Back!</button>
+                        <!--button class="btn btn-warning mininav mininavright" onclick="hgtui.toggle_map();">Map View</button-->
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--end listview -->
 
         <!--start list for multiple results (geolist)-->
         <div  id="geolist">
@@ -163,7 +158,7 @@
                 <table id="geolist-canvas" align="center"></table>
                 <div id="buttonsongeolist" align="center">
                     <div class="span9 offset2">
-                        <button class="btn btn-warning mininav mininavleft" onclick="hgtui.geolist_cancel();">Cancel</button>
+                        <button class="btn btn-warning mininav floatleft" onclick="hgtui.geolist_cancel();">Cancel</button>
                         <!--<button class="btn btn-warning mininav mininavright" onclick="hgtui.toggle_map();"></button>-->
                     </div>
                 </div>
@@ -179,7 +174,7 @@
                 <table id="rest-details-canvas" align="center"></table>
                 <div id="buttonsonrestdetails" class align="center">
                     <div class="span9 offset2">
-                        <button class="btn btn-warning mininav mininavleft" onclick="hgtui.offrestdetails();">Back!</button>
+                        <button class="btn btn-warning mininav floatleft" onclick="hgtui.offrestdetails();">Back!</button>
                         <!--<button class="btn btn-warning mininav mininavright" onclick="hgtui.toggle_map();"></button>-->
                     </div>
                 </div>

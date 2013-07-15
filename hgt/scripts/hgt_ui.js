@@ -9,6 +9,7 @@ var hgtui = new Object();
 hgtui.currlocation_previousValue = "";
 hgtui.currlocation1_previousValue = "";
 hgtui.lastViewed = "wherecaneat";
+hgtui.lastViewedFromRestDetails = "mapview";
 hgtui.geolist_resultList = null;
 hgtui.geolist_functionToCall = null;
 hgtui.geolist_queue = [];
@@ -48,9 +49,13 @@ hgtui.loadlist = function() {
 	listcanvas = document.getElementById('list-canvas');
 	var addhtml = "";   
 	for (var i = 0; i < hgt.restaurants.length; i++) {
-		addhtml += '<tr><td><table id="innerList"><tr><th id="listTitle" class="bottomborder">';
+		addhtml += '<tr><td><table id="innerList"><tr><td id="listTitle" class="bottomborder">';
 		addhtml += '<a class="nodeco" href="#" onclick="hgtui.restdetails(' + i +')">';
-		addhtml += '<div class="listviewtitle">' + hgt.restaurants[i].title + '</div></a><span id="listRating">Rating: ' + hgt.restaurants[i].rating + '</span></th></tr></table></td></tr>';
+		addhtml += '<div class="listviewtitle">' + hgt.restaurants[i].title + '</div></a>';
+		addhtml += '<span id="listAddress">Address: ' + hgt.restaurants[i].address + '</span><br />';
+		addhtml += '<span class="floatleft" id="list">' + hgt.restaurants[i].contact + '</span>'
+		addhtml += '<span class="floatright" id="listRating">Rating: ' + hgt.restaurants[i].rating + '</span>'
+		addhtml += '<br /></td></tr></table></td></tr>';
 	}
 	listcanvas.innerHTML= addhtml;
 }
@@ -62,11 +67,14 @@ hgtui.show_maps = function() {
 	document.body.style.cssText = "padding-top:0px; padding-bottom:0px";
 	document.documentElement.style.cssText = "height: 100%";
 
-	var wholething = document.getElementById('wholething');
-	wholething.style.display = 'none';
-	var mapview = document.getElementById('mapview');
-	mapview.style.display = 'block';
+	hgtui.hideall();
+	document.getElementById('mapview').style.display = 'block';
 	g.initialize();
+}
+
+
+hgtui.show_navbar = function() {
+	document.getElementById('navigationbar').style.display = 'block';
 }
 
 //textboxId = the html id of the textbox that the user typed the geo-query into
@@ -118,6 +126,13 @@ hgtui.geolist_entryClick = function(index) {
 	}
 }
 
+hgtui.show_lastviewed_page = function() {
+	hgtui.hideall();
+	hgtui.show_navbar();
+	document.getElementById(hgtui.lastViewed).style.display = "block";
+}
+
+
 hgtui.hide_geolist = function() {
 	document.getElementById('geolist').style.display = "none";
 }
@@ -138,12 +153,9 @@ hgtui.toggle_map = function() {
 	
 	document.body.style.cssText = "padding-top:0px; padding-bottom:0px";
 	document.documentElement.style.cssText = "height: 100%";
-
-
-	var listview = document.getElementById('listview');
-	listview.style.display = 'none';
-	var mapview = document.getElementById('mapview');
-	mapview.style.display = 'block';
+	hgtui.hideall();
+	document.getElementById('mapview').style.display = 'block';
+	hgtui.lastViewedFromRestDetails = 'mapview';
 }
 
 hgtui.toggle_list = function() {
@@ -153,16 +165,15 @@ hgtui.toggle_list = function() {
 	document.documentElement.style.cssText = "height: 100%";
 
 	hgtui.loadlist();
-
-	var mapview = document.getElementById('mapview');
-	mapview.style.display = 'none';
-	var listview = document.getElementById('listview');
-	listview.style.display = 'block';
+	hgtui.hideall();
+	document.getElementById('navigationbar').style.display = 'block';
+	document.getElementById('listview').style.display = 'block';
+	hgtui.lastViewedFromRestDetails = 'listview';
 
 	//document.getElementById("mapViewButton").style.display = "";
 }
 
-hgtui.off_maps = function() {
+hgtui.hide_maps = function() {
 	document.body.style.cssText = "";
 	document.documentElement.style.cssText = "";
 
@@ -172,7 +183,8 @@ hgtui.off_maps = function() {
 	wholething.style.display = 'block';
 }
 
-hgtui.off_list = function() {
+/*
+hgtui.hide_list = function() {
 	document.body.style.cssText = "";
 	document.documentElement.style.cssText = "";
 
@@ -182,6 +194,8 @@ hgtui.off_list = function() {
 	var wholething = document.getElementById('wholething');
 	wholething.style.display = 'block';
 }
+*/
+
 
 hgtui.restdetails = function(index) {
 	if(hgtuser.nickname == "") {
@@ -208,7 +222,8 @@ hgtui.restdetails = function(index) {
 hgtui.displayRestaurantDetails = function(index, isFavourite) {
 	hgtui.hideLoadingScreen();
 
-	document.getElementById('maplistarea').style.display = 'none';
+	hgtui.hideall();
+	hgtui.show_navbar();
 	document.getElementById('restdetails').style.display = 'block';
 	var addhtml = "";
 	addhtml += '<tr><td><div class="listviewtitle"><br />' + hgt.restaurants[index].title + '</div><hr></td></tr>';
@@ -237,8 +252,9 @@ hgtui.displayRestaurantDetails = function(index, isFavourite) {
 }
 
 hgtui.offrestdetails = function() {
-	document.getElementById('restdetails').style.display = 'none';
-	document.getElementById('maplistarea').style.display = 'block';
+	hgtui.hideall();
+	hgtui.show_navbar();
+	document.getElementById(hgtui.lastViewedFromRestDetails).style.display = 'block';
 }
 
 hgtui.addToFavourites = function(index) {
@@ -277,26 +293,21 @@ hgtui.addToRecents = function(index) {
 hgtui.hideall = function() {
 	document.body.style.cssText = "";
 	document.documentElement.style.cssText = "";
-
-	var page1 = document.getElementById('page1');
-	var wherecaneat = document.getElementById('wherecaneat');
-	var halfwayeatwhere = document.getElementById('halfwayeatwhere');
-	var mapview = document.getElementById('mapview');
-	var listview = document.getElementById('listview');
-	var geolist = document.getElementById('geolist');
-	page1.style.display = 'none';
-	wherecaneat.style.display = 'none';
-	halfwayeatwhere.style.display = 'none';
-	mapview.style.display = 'none';
-	listview.style.display = 'none';
-	geolist.style.display = 'none';
-
+	document.getElementById("navigationbar").style.display = "none";
+	document.getElementById("page1").style.display = "none";
+	document.getElementById("wherecaneat").style.display = "none";
+	document.getElementById("halfwayeatwhere").style.display = "none";
+	document.getElementById("mapview").style.display = "none";
+	document.getElementById("listview").style.display = "none";
+	document.getElementById("geolist").style.display = "none";
+	document.getElementById("restdetails").style.display = "none";
 	document.getElementById("overlay_background").style.display = "none";
 	document.getElementById("overlay_items").style.display = "none";
 }
 
 hgtui.showPage1 = function() {
 	hgtui.hideall();
+	hgtui.show_navbar();
 	var page1 = document.getElementById('page1');
 	page1.style.display = 'block';
 }
@@ -304,6 +315,7 @@ hgtui.showPage1 = function() {
 hgtui.showWhereCanEat = function() {
 	hgtui.lastViewed = "wherecaneat";
 	hgtui.hideall();
+	hgtui.show_navbar();
 	var wherecaneat = document.getElementById('wherecaneat');
 	wherecaneat.style.display = 'block';
 }
@@ -311,6 +323,7 @@ hgtui.showWhereCanEat = function() {
 hgtui.showHalfwayEatWhere = function() {
 	hgtui.lastViewed = "halfwayeatwhere"
 	hgtui.hideall();
+	hgtui.show_navbar();
 	var halfwayeatwhere = document.getElementById('halfwayeatwhere');
 	halfwayeatwhere.style.display = 'block';
 }

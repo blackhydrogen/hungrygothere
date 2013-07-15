@@ -213,7 +213,17 @@ body {
   font-size: 15px;
   text-align: left;
   color: #fbb450;
-} 
+}
+
+.floatright {
+  float: right;
+}
+
+
+.floatleft {
+  float: left;
+}
+
 
 #list{
   font-size: 13px;
@@ -224,7 +234,7 @@ body {
 #listAddress{
   font-size: 15px;
   text-align: left;
-  color: white;
+  color: #B6B6B4;
   font-style: italic;
 } 
 
