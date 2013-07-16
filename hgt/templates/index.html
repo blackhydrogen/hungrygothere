@@ -24,7 +24,7 @@
         <script type="text/javascript" src="dscripts/userLoginInfo.js"></script>
     </head>
 
-    <body onload="hgtui.reset_fields(); hgt.findCurrentLocation(); hgtui.setLoginDetails();">
+    <body onload="hgtui.reset_fields(); hgt.findCurrentLocation(); hgtui.setLoginDetails(); hgtui.showPage1();">
         <div class="navbar navbar-fixed-top" id="navigationbar">
             <div class="navbar-inner">
                 <div class="container">
@@ -46,6 +46,8 @@
                             <li><a onclick="hgtui.showPage1();" href="#">Home</a></li>
                             <li><a onclick="hgtui.showWhereCanEat();" href="#">Where Can Eat?</a></li>
                             <li><a onclick="hgtui.showHalfwayEatWhere();" href="#">Halfway Eat Where?</a></li>
+                            <li><a onclick="hgtui.showFavourites();" href="#">My Favourites!</a></li>
+                            <li><a onclick="hgtui.showHistory();" href="#">Recently Viewed</a></li>
                             <li><a><div id="temp_login"></div></a><li>
                         </ul>
                     </div>
@@ -63,6 +65,10 @@
                         <button class="btn btn-xlarge btn-warning fillparent" onclick="hgtui.showWhereCanEat();">Where Can Eat?</button>
                         <div class="placeholder"></div>
                         <button class="btn btn-xlarge btn-warning fillparent" onclick="hgtui.showHalfwayEatWhere();">Halfway Eat Where?</button>
+                        <div class="placeholder"></div>
+                        <button class="btn btn-xlarge btn-warning fillparent" onclick="hgtui.showFavourites();">My Favourites!</button>
+                        <div class="placeholder"></div>
+                        <button class="btn btn-xlarge btn-warning fillparent" onclick="hgtui.showHistory();">Recently Viewed</button>
                     </div>
                 </div>
             </div>
@@ -145,6 +151,25 @@
             </div>
         </div>
         <!--end listview -->
+
+        <!--start FAVOURITES and HISTORY listview -->
+        <div id="fav-hist-listview">
+            <div class="span7 offset3">
+                <!--div class="placeholder"></div-->
+                <div align="center">
+                    <h1 class="title1">List of Restaurants</h1>
+                </div>
+                <div class="placeholder"></div>
+                <table id="fav-hist-list-canvas" align="center"></table>
+                <div id="buttonsonlist" class align="center">
+                    <div class="span9 offset2">
+                        <button class="btn btn-warning mininav floatleft" onclick="hgtui.showPage1();">Back!</button>
+                        <!--button class="btn btn-warning mininav mininavright" onclick="hgtui.toggle_map();">Map View</button-->
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--end FAVOURITES and HISTORY listview -->
 
         <!--start list for multiple results (geolist)-->
         <div  id="geolist">

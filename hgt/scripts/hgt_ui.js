@@ -60,6 +60,36 @@ hgtui.loadlist = function() {
 	listcanvas.innerHTML= addhtml;
 }
 
+hgtui.loadFavourites = function() {
+	favhistlistcanvas = document.getElementById('fav-hist-list-canvas');
+	var addhtml = "";   
+	for (var i = 0; i < hgt.restaurants.length; i++) {
+		addhtml += '<tr><td><table id="innerList"><tr><td id="listTitle" class="bottomborder">';
+		addhtml += '<a class="nodeco" href="#" onclick="hgtui.restdetails(' + i +')">';
+		addhtml += '<div class="listviewtitle">' + hgt.restaurants[i].title + '</div></a>';
+		addhtml += '<span id="listAddress">Address123: ' + hgt.restaurants[i].address + '</span><br />';
+		addhtml += '<span class="floatleft" id="list">' + hgt.restaurants[i].contact + '</span>'
+		addhtml += '<span class="floatright" id="listRating">Rating: ' + hgt.restaurants[i].rating + '</span>'
+		addhtml += '<br /></td></tr></table></td></tr>';
+	}
+	favhistlistcanvas.innerHTML= addhtml;
+}
+
+hgtui.loadHistory = function() {
+	favhistlistcanvas = document.getElementById('fav-hist-list-canvas');
+	var addhtml = "";   
+	for (var i = 0; i < hgt.restaurants.length; i++) {
+		addhtml += '<tr><td><table id="innerList"><tr><td id="listTitle" class="bottomborder">';
+		addhtml += '<a class="nodeco" href="#" onclick="hgtui.restdetails(' + i +')">';
+		addhtml += '<div class="listviewtitle">' + hgt.restaurants[i].title + '</div></a>';
+		addhtml += '<span id="listAddress">Address456: ' + hgt.restaurants[i].address + '</span><br />';
+		addhtml += '<span class="floatleft" id="list">' + hgt.restaurants[i].contact + '</span>'
+		addhtml += '<span class="floatright" id="listRating">Rating: ' + hgt.restaurants[i].rating + '</span>'
+		addhtml += '<br /></td></tr></table></td></tr>';
+	}
+	favhistlistcanvas.innerHTML= addhtml;
+}
+
 //Navigation Buttons
 hgtui.show_maps = function() {
 	//hide main portion and display map
@@ -299,6 +329,7 @@ hgtui.hideall = function() {
 	document.getElementById("halfwayeatwhere").style.display = "none";
 	document.getElementById("mapview").style.display = "none";
 	document.getElementById("listview").style.display = "none";
+	document.getElementById("fav-hist-listview").style.display = "none";
 	document.getElementById("geolist").style.display = "none";
 	document.getElementById("restdetails").style.display = "none";
 	document.getElementById("overlay_background").style.display = "none";
@@ -327,6 +358,23 @@ hgtui.showHalfwayEatWhere = function() {
 	var halfwayeatwhere = document.getElementById('halfwayeatwhere');
 	halfwayeatwhere.style.display = 'block';
 }
+
+hgtui.showFavourites = function() {
+	hgtui.lastViewedFromRestDetails = "fav-hist-listview"
+	hgtui.hideall();
+	hgtui.show_navbar();
+	hgtui.loadFavourites();
+	var halfwayeatwhere = document.getElementById('fav-hist-listview').style.display = 'block';
+}
+
+hgtui.showHistory = function() {
+	hgtui.lastViewedFromRestDetails = "fav-hist-listview"
+	hgtui.hideall();
+	hgtui.show_navbar();
+	hgtui.loadHistory();
+	var halfwayeatwhere = document.getElementById('fav-hist-listview').style.display = 'block';
+}
+
 
 //Functionality
 hgtui.update_currlocation = function() {
