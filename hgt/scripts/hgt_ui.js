@@ -47,7 +47,7 @@ hgtui.reset_fields = function() {
 
 hgtui.loadlist = function() {
 	listcanvas = document.getElementById('list-canvas');
-	var addhtml = "";   
+	var addhtml = "";
 	for (var i = 0; i < hgt.restaurants.length; i++) {
 		addhtml += '<tr><td><table id="innerList"><tr><td id="listTitle" class="bottomborder">';
 		addhtml += '<a class="nodeco" href="#" onclick="hgtui.restdetails(' + i +')">';
@@ -60,29 +60,20 @@ hgtui.loadlist = function() {
 	listcanvas.innerHTML= addhtml;
 }
 
-hgtui.loadFavourites = function() {
+hgtui.loadFavouritesOrHistory = function() {
 	favhistlistcanvas = document.getElementById('fav-hist-list-canvas');
-	var addhtml = "";   
-	for (var i = 0; i < hgt.restaurants.length; i++) {
-		addhtml += '<tr><td><table id="innerList"><tr><td id="listTitle" class="bottomborder">';
-		addhtml += '<a class="nodeco" href="#" onclick="hgtui.restdetails(' + i +')">';
-		addhtml += '<div class="listviewtitle">' + hgt.restaurants[i].title + '</div></a>';
-		addhtml += '<span id="listAddress">Address123: ' + hgt.restaurants[i].address + '</span><br />';
-		addhtml += '<span class="floatleft" id="list">' + hgt.restaurants[i].contact + '</span>'
-		addhtml += '<span class="floatright" id="listRating">Rating: ' + hgt.restaurants[i].rating + '</span>'
-		addhtml += '<br /></td></tr></table></td></tr>';
-	}
-	favhistlistcanvas.innerHTML= addhtml;
-}
+	var addhtml = "";
 
-hgtui.loadHistory = function() {
-	favhistlistcanvas = document.getElementById('fav-hist-list-canvas');
-	var addhtml = "";   
+	if(hgt.restaurants.length == 0) {
+		addhtml = "<tr><td><br>There are no restaurants.</td></tr>"
+		//loop below will not be executed
+	}
+
 	for (var i = 0; i < hgt.restaurants.length; i++) {
 		addhtml += '<tr><td><table id="innerList"><tr><td id="listTitle" class="bottomborder">';
 		addhtml += '<a class="nodeco" href="#" onclick="hgtui.restdetails(' + i +')">';
 		addhtml += '<div class="listviewtitle">' + hgt.restaurants[i].title + '</div></a>';
-		addhtml += '<span id="listAddress">Address456: ' + hgt.restaurants[i].address + '</span><br />';
+		addhtml += '<span id="listAddress">Address: ' + hgt.restaurants[i].address + '</span><br />';
 		addhtml += '<span class="floatleft" id="list">' + hgt.restaurants[i].contact + '</span>'
 		addhtml += '<span class="floatright" id="listRating">Rating: ' + hgt.restaurants[i].rating + '</span>'
 		addhtml += '<br /></td></tr></table></td></tr>';
@@ -99,6 +90,7 @@ hgtui.show_maps = function() {
 
 	hgtui.hideall();
 	document.getElementById('mapview').style.display = 'block';
+	hgtui.lastViewedFromRestDetails = 'mapview';
 	g.initialize();
 }
 
@@ -268,7 +260,7 @@ hgtui.displayRestaurantDetails = function(index, isFavourite) {
 	}
 	else {
 		if(isFavourite) {
-			addhtml += '<tr><th id="list"><span id="addToFavouriteLink">Already a Favourite Restaurant!</span></td></tr><tr><td class="placeholder3"></th></tr>';
+			addhtml += '<tr><th id="list"><span id="addToFavouriteLink">This is a Favourite Restaurant!<br><a href="#" onclick="hgtui.removeFromFavourites(' + index + ');" class="nodeco">Remove from Favourites</a></span></td></tr><tr><td class="placeholder3"></th></tr>';
 		}
 		else {
 			addhtml += '<tr><th id="list"><span id="addToFavouriteLink"><a href="#" onclick="hgtui.addToFavourites(' + index + ');" class="nodeco">Add To Favourites</a></span></td></tr><tr><td class="placeholder3"></th></tr>';
@@ -283,7 +275,9 @@ hgtui.displayRestaurantDetails = function(index, isFavourite) {
 
 hgtui.offrestdetails = function() {
 	hgtui.hideall();
-	hgtui.show_navbar();
+	if(hgtui.lastViewedFromRestDetails != "mapview") {
+		hgtui.show_navbar();
+	}
 	document.getElementById(hgtui.lastViewedFromRestDetails).style.display = 'block';
 }
 
@@ -301,7 +295,28 @@ hgtui.addToFavourites = function(index) {
 			}
 			else {
 				hgtui.inform("Restaurant added as favourite!")
-				document.getElementById("addToFavouriteLink").innerHTML = "Added as Favourite Restaurant!";
+				document.getElementById("addToFavouriteLink").innerHTML = 'This is a Favourite Restaurant!<br><a href="#" onclick="hgtui.removeFromFavourites(' + index + ');" class="nodeco">Remove from Favourites</a>';
+			}
+		},
+		"json"
+	);
+}
+
+hgtui.removeFromFavourites = function(index) {
+	if(hgtuser.nickname == "") {
+		hgtui.inform("This feature is for logged in users only. Please login to enjoy this feature.");
+		return;
+	}
+	$.post(
+		"/removeFavouriteRestaurant",
+		{id: hgt.restaurants[index].id},
+		function(data, status) {
+			if(data.error) {
+				hgtui.inform("An error occured when trying to remove this restaurant as your favourite.<br>The server returned with the following error message: " + data.errorMsg + "<br>Please try again.")
+			}
+			else {
+				hgtui.inform("Restaurant removed from favourites!")
+				document.getElementById("addToFavouriteLink").innerHTML = '<a href="#" onclick="hgtui.addToFavourites(' + index + ');" class="nodeco">Add To Favourites</a>';
 			}
 		},
 		"json"
@@ -360,19 +375,67 @@ hgtui.showHalfwayEatWhere = function() {
 }
 
 hgtui.showFavourites = function() {
-	hgtui.lastViewedFromRestDetails = "fav-hist-listview"
-	hgtui.hideall();
-	hgtui.show_navbar();
-	hgtui.loadFavourites();
-	var halfwayeatwhere = document.getElementById('fav-hist-listview').style.display = 'block';
+	if(hgtuser.nickname == "") {
+		hgtui.inform("The My Favourites! feature is only available for logged in users. Please login to use this feature.");
+		return;
+	}
+
+	hgtui.showLoadingScreen();
+	$.post(
+		"/getFavouriteRestaurants",
+		{},
+		function(data, status) {
+			if(data.error == true) {
+				hgtui.inform("An error occured, please try again.")
+				hgtui.hideLoadingScreen();
+			}
+			else {
+				hgt.restaurants = data.restaurants;
+
+				document.getElementById("fav-hist-title").innerHTML = "Favourite Restaurants";
+				hgtui.lastViewedFromRestDetails = "fav-hist-listview";
+				hgtui.hideall();
+				hgtui.show_navbar();
+				hgtui.loadFavouritesOrHistory();
+
+				hgtui.hideLoadingScreen();
+				document.getElementById('fav-hist-listview').style.display = 'block';
+			}
+		},
+		"json"
+	);
 }
 
 hgtui.showHistory = function() {
-	hgtui.lastViewedFromRestDetails = "fav-hist-listview"
-	hgtui.hideall();
-	hgtui.show_navbar();
-	hgtui.loadHistory();
-	var halfwayeatwhere = document.getElementById('fav-hist-listview').style.display = 'block';
+	if(hgtuser.nickname == "") {
+		hgtui.inform("The Recently Viewed feature is only available for logged in users. Please login to use this feature.");
+		return;
+	}
+
+	hgtui.showLoadingScreen();
+	$.post(
+		"/getRecentRestaurants",
+		{},
+		function(data, status) {
+			if(data.error == true) {
+				hgtui.inform("An error occured, please try again.")
+				hgtui.hideLoadingScreen();
+			}
+			else {
+				hgt.restaurants = data.restaurants;
+
+				document.getElementById("fav-hist-title").innerHTML = "Recent Restaurants";
+				hgtui.lastViewedFromRestDetails = "fav-hist-listview";
+				hgtui.hideall();
+				hgtui.show_navbar();
+				hgtui.loadFavouritesOrHistory();
+
+				hgtui.hideLoadingScreen();
+				document.getElementById('fav-hist-listview').style.display = 'block';
+			}
+		},
+		"json"
+	);
 }
 
 
@@ -475,16 +538,8 @@ hgtui.setWalk = function() {
 	status.value = 'walk';
 }
 
-hgtui.showLoadingScreen = function() {
-	document.getElementById("overlay_content").innerHTML = "Loading...";
-	hgtui.showOverlays();
-}
-
-hgtui.hideLoadingScreen = function() {
-	hgtui.hideOverlays();
-}
-
 hgtui.showOverlays = function() {
+	document.getElementById("overlay_background").style.height = $(document).height() + "px";
 	document.getElementById("overlay_background").style.display = ""; //not "block", "" is correct
 	document.getElementById("overlay_items").style.display = ""; //not "block", "" is correct
 }
@@ -492,6 +547,15 @@ hgtui.showOverlays = function() {
 hgtui.hideOverlays = function() {
 	document.getElementById("overlay_background").style.display = "none";
 	document.getElementById("overlay_items").style.display = "none";
+}
+
+hgtui.showLoadingScreen = function() {
+	document.getElementById("overlay_content").innerHTML = "Loading...";
+	hgtui.showOverlays();
+}
+
+hgtui.hideLoadingScreen = function() {
+	hgtui.hideOverlays();
 }
 
 hgtui.inform = function(msg) {

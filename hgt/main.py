@@ -111,6 +111,9 @@ class getRestaurantsAlongRouteHandler(webapp2.RequestHandler):
 class getFavouriteRestaurantsHandler(webapp2.RequestHandler):
 	def get(self):
 		self.response.headers["Content-Type"] = "application/json"
+		self.response.out.write(json.dumps({"restaurants": [], "error": True, "errorMsg": "GET method not supported."}))
+	def post(self):
+		self.response.headers["Content-Type"] = "application/json"
 		user = users.get_current_user()
 
 		if user:
@@ -130,17 +133,25 @@ class getFavouriteRestaurantsHandler(webapp2.RequestHandler):
 class getRecentRestaurantsHandler(webapp2.RequestHandler):
 	def get(self):
 		self.response.headers["Content-Type"] = "application/json"
+		self.response.out.write(json.dumps({"restaurants": [], "error": True, "errorMsg": "GET method not supported."}))
+	def post(self):
+		self.response.headers["Content-Type"] = "application/json"
 		user = users.get_current_user()
 
 		if user:
 			hgtUser = HgtUser.get_or_insert(user.user_id(), user = user)
 			results = []
 
-			restaurantList = hgtUser.favouriteRestaurants;
+			restaurantList = hgtUser.recentRestaurants;
 			restaurantList.order('-timeAdded')
 
+			counter = 0
 			for i in restaurantList:
-				results.append(convertToJSON(i.restaurant))
+				counter += 1
+				if counter <= 20:
+					results.append(convertToJSON(i.restaurant))
+				else:
+					i.delete();
 
 			self.response.out.write(json.dumps({"restaurants": results, "error": False}))
 		else:
@@ -189,9 +200,53 @@ class addRecentRestaurantHandler(webapp2.RequestHandler):
 				if restaurant is None:
 					raise Exception()
 				
-				RecentLink(user=hgtUser, restaurant=restaurant).put()
-				#delete last entry if too long? or in the getRecent handler?
+				query = RecentLink.all()
+				query.filter("user =", hgtUser)
+				query.filter("restaurant =", restaurant)
+
+				queryResult = query.get()
+
+				if queryResult == None:
+					RecentLink(user=hgtUser, restaurant=restaurant).put()
+				else:
+					queryResult.put();
+
 				self.response.out.write(json.dumps({"error": False}))
+			except:
+				self.response.out.write(json.dumps({"error": True, "errorMsg": "ID provided is invalid."}))
+		else:
+			self.response.out.write(json.dumps({"error": True, "errorMsg": "User not logged in."}))
+
+class removeFavouriteRestaurantHandler(webapp2.RequestHandler):
+	def get(self):
+		self.response.headers["Content-Type"] = "application/json"
+		self.response.out.write(json.dumps({"error": True, "errorMsg": "GET method not supported."}))
+	def post(self):
+		self.response.headers["Content-Type"] = "application/json"
+		user = users.get_current_user()
+
+		if user:
+			try:
+				hgtUser = HgtUser.get_or_insert(user.user_id(), user = user)
+				restaurantId = int(self.request.get("id"))
+
+				restaurant = Restaurant.get_by_id(restaurantId)
+
+				if restaurant is None:
+					raise Exception()
+				
+				query = FavouriteLink.all()
+				query.filter("user =", hgtUser)
+				query.filter("restaurant =", restaurant)
+
+				queryResult = query.get()
+
+				if queryResult == None:
+					self.response.out.write(json.dumps({"error": True, "errorMsg": "User-Restaurant favourite relationship not found!"}))
+				else:
+					queryResult.delete()
+					self.response.out.write(json.dumps({"error": False}))
+
 			except:
 				self.response.out.write(json.dumps({"error": True, "errorMsg": "ID provided is invalid."}))
 		else:
@@ -215,13 +270,13 @@ class isFavouriteRestaurantHandler(webapp2.RequestHandler):
 				if restaurant is None:
 					raise Exception()
 				
-				#RecentLink(user=hgtUser, restaurant=restaurant).put()
-				#delete last entry if too long? or in the getRecent handler?
-				#placeholder
-				###############################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################
-				###############################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################
-				###############################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################
-				self.response.out.write(json.dumps({"error": False, "isFavourite": False}))
+				query = FavouriteLink.all()
+				query.filter("user =", hgtUser)
+				query.filter("restaurant =", restaurant)
+
+				linkExists = (query.get() != None)
+
+				self.response.out.write(json.dumps({"error": False, "isFavourite": linkExists}))
 			except:
 				self.response.out.write(json.dumps({"error": True, "errorMsg": "ID provided is invalid."}))
 		else:
@@ -246,6 +301,7 @@ app = webapp2.WSGIApplication([
 	("/getRecentRestaurants", getRecentRestaurantsHandler),
 	("/addFavouriteRestaurant", addFavouriteRestaurantHandler),
 	("/addRecentRestaurant", addRecentRestaurantHandler),
+	("/removeFavouriteRestaurant", removeFavouriteRestaurantHandler),
 	("/isFavouriteRestaurant", isFavouriteRestaurantHandler),
 
 	("/dscripts/userLoginInfo.js", userLoginInfoHandler),
@@ -288,7 +344,7 @@ class HgtUser(db.Model):
 class RecentLink(db.Model):
 	user = db.ReferenceProperty(reference_class=HgtUser, collection_name="recentRestaurants")
 	restaurant = db.ReferenceProperty(reference_class=Restaurant, collection_name="usersRecented")
-	timeAdded = db.DateTimeProperty(auto_now_add=True)
+	timeAdded = db.DateTimeProperty(auto_now=True)
 
 class FavouriteLink(db.Model):
 	user = db.ReferenceProperty(reference_class=HgtUser, collection_name="favouriteRestaurants")

@@ -10,6 +10,18 @@ indexes:
 # automatically uploaded to the admin console when you next deploy
 # your application using appcfg.py.
 
+- kind: FavouriteLink
+  properties:
+  - name: user
+  - name: timeAdded
+    direction: desc
+
+- kind: RecentLink
+  properties:
+  - name: user
+  - name: timeAdded
+    direction: desc
+
 - kind: Restaurant
   properties:
   - name: longitude

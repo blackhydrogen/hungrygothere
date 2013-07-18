@@ -188,7 +188,7 @@ body {
     z-index: 10;
 } 
 
-#list-canvas, #geolist-canvas, #rest-details-canvas {
+#list-canvas, #geolist-canvas, #rest-details-canvas, #fav-hist-list-canvas {
   width: 100%;
   border-top: 2px solid;
   text-align: center;
