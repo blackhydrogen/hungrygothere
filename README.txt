@@ -1,6 +1,8 @@
 Hungry Go There
 ===============
 
+Find Food En-route.
+
 Final Product:
 http://hungrygothere.appspot.com/
 
